@@ -2,38 +2,59 @@
 
 ## 📋 模块介绍
 
-安全机制保护 Claude Code 的操作安全，防止意外或恶意操作。本章将讲解安全特性和最佳实践。
+安全是 Claude Code 的核心设计理念之一。本章将深入讲解安全机制，帮助你理解如何保护代码、数据和系统安全。
 
 ---
 
 ## 🟢 入门级：安全基础
 
-### 基本安全特性
+### 为什么安全很重要？
 
 ```markdown
-✅ 权限控制 - 文件读写权限
-✅ 操作确认 - 危险操作需确认
-✅ 路径验证 - 防止路径遍历
-✅ 输入验证 - 防止注入攻击
+⚠️  潜在风险：
+- 意外删除重要文件
+- 泄露敏感信息（API密钥、密码）
+- 执行恶意代码
+- 权限提升攻击
+
+✅ Claude Code 的安全保障：
+- 文件系统隔离
+- 命令执行限制
+- 敏感信息检测
+- 操作确认机制
 ```
 
-### 安全检查
+### 基本安全特性
+
+| 特性 | 说明 | 示例 |
+|------|------|------|
+| **路径验证** | 防止目录遍历 | 拒绝 `../../../etc/passwd` |
+| **命令过滤** | 阻止危险命令 | 拒绝 `rm -rf /` |
+| **敏感信息检测** | 防止密钥泄露 | 检测 `API_KEY=xxx` |
+| **权限控制** | 文件操作限制 | 只能写入项目目录 |
+| **确认机制** | 危险操作确认 | 删除前询问 |
+
+### 安全检查示例
 
 ```bash
-# 文件写入检查
-claude> 写入到 /etc/hosts
+# 尝试访问系统文件
+claude> 读取 /etc/passwd
+⚠️  警告：访问系统文件
+❌ 操作被拒绝
 
-⚠️  警告：系统文件，需要确认
-
-# 危险命令检查
+# 尝试危险命令
 claude> 运行 rm -rf /
+❌ 危险命令已阻止
 
-❌ 拒绝：危险命令
+# 尝试写入敏感信息
+claude> 在代码中添加 API_KEY="sk-123456"
+⚠️  警告：检测到敏感信息
+建议：使用环境变量
 ```
 
 ---
 
-## 🟡 中级：安全配置
+## 🟡 中级：安全配置与最佳实践
 
 ### 权限管理
 
@@ -41,15 +62,25 @@ claude> 运行 rm -rf /
 {
   "permissions": {
     "file:read": true,
-    "file:write": ["./src/**", "./tests/**"],
+    "file:write": [
+      "./src/**",
+      "./tests/**",
+      "./docs/**"
+    ],
+    "file:delete": [
+      "./temp/**",
+      "./build/**"
+    ],
     "bash:run": true,
+    "bash:allowedCommands": [
+      "npm",
+      "yarn",
+      "git",
+      "python",
+      "pytest"
+    ],
     "git:read": true,
     "git:write": true
-  },
-  "security": {
-    "blockDangerousCommands": true,
-    "requireConfirmation": true,
-    "allowedPaths": ["./src", "./tests"]
   }
 }
 ```
@@ -58,14 +89,63 @@ claude> 运行 rm -rf /
 
 ```bash
 #!/bin/bash
+# pre-commit-security.sh
+
 # 检查敏感信息
+FILES=$(git diff --cached --name-only)
 
-if grep -i "password\|secret\|api_key" "$1"; then
-  echo "❌ 发现敏感信息"
-  exit 1
-fi
+for FILE in $FILES; do
+  # 检查API密钥
+  if git diff --cached "$FILE" | grep -Ei "(api[_-]?key|secret|password|token)\s*[=:]\s*['\"][^'\"]+['\"]"; then
+    echo "❌ $FILE 包含硬编码的敏感信息"
+    exit 1
+  fi
 
+  # 检查私钥
+  if git diff --cached "$FILE" | grep -E "BEGIN.*PRIVATE KEY"; then
+    echo "❌ $FILE 包含私钥"
+    exit 1
+  fi
+
+  # 检查调试代码
+  if git diff --cached "$FILE" | grep -E "(console\.log|debugger|print\()"; then
+    echo "⚠️  $FILE 包含调试代码"
+  fi
+done
+
+echo "✅ 安全检查通过"
 exit 0
+```
+
+### 安全配置最佳实践
+
+#### 1. 最小权限原则
+
+```json
+{
+  "permissions": {
+    "file:write": [
+      "./src/**",
+      "./tests/**"
+    ],
+    "bash:run": false,
+    "bash:allowedCommands": []
+  }
+}
+```
+
+#### 2. 敏感信息保护
+
+```bash
+# .env.example
+DATABASE_URL=postgresql://user:pass@localhost/db
+API_KEY=your_api_key_here
+SECRET_KEY=your_secret_key_here
+
+# 添加到 .gitignore
+echo ".env" >> .gitignore
+echo "*.key" >> .gitignore
+echo "*.pem" >> .gitignore
 ```
 
 ---
@@ -76,31 +156,41 @@ exit 0
 
 ```typescript
 class PermissionManager {
-  private permissions: Map<string, Permission[]>;
+  private permissions: Map<string, Permission> = new Map();
 
   check(
-    agentId: string,
     action: string,
-    resource: string
-  ): boolean {
-    const perms = this.permissions.get(agentId) || [];
+    resource: string,
+    context: SecurityContext
+  ): PermissionResult {
+    const permission = this.permissions.get(action);
 
-    for (const perm of perms) {
-      if (perm.action === action) {
-        return this.checkResource(perm, resource);
-      }
+    if (!permission) {
+      return { allowed: false, reason: 'Permission not defined' };
     }
 
-    return false;
+    // 检查资源匹配
+    if (!this.matchesResource(permission.allowedResources, resource)) {
+      return { allowed: false, reason: 'Resource not allowed' };
+    }
+
+    // 检查上下文条件
+    if (!this.checkConditions(permission.conditions, context)) {
+      return { allowed: false, reason: 'Conditions not met' };
+    }
+
+    return { allowed: true };
   }
 
-  private checkResource(perm: Permission, resource: string): boolean {
-    for (const pattern of perm.allowedPatterns) {
+  private matchesResource(
+    patterns: string[],
+    resource: string
+  ): boolean {
+    for (const pattern of patterns) {
       if (minimatch(resource, pattern)) {
         return true;
       }
     }
-
     return false;
   }
 }
@@ -111,20 +201,25 @@ class PermissionManager {
 ```typescript
 class InputValidator {
   sanitize(input: string): string {
-    // 移除危险字符
+    // 防止命令注入
     let sanitized = input.replace(/[;&|`$()]/g, '');
 
-    // 路径遍历防护
+    // 防止路径遍历
     sanitized = sanitized.replace(/\.\.[/\\]/g, '');
 
     return sanitized;
   }
 
-  validatePath(path: string): boolean {
+  validatePath(path: string, allowedPaths: string[]): boolean {
     const normalized = path.normalize(path);
-    const cwd = process.cwd();
 
-    return normalized.startsWith(cwd);
+    for (const allowed of allowedPaths) {
+      if (normalized.startsWith(allowed)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 ```
@@ -134,23 +229,21 @@ class InputValidator {
 ```typescript
 class AuditLogger {
   async log(event: AuditEvent): Promise<void> {
-    const log = {
+    const logEntry = {
       timestamp: Date.now(),
-      agentId: event.agentId,
+      user: event.userId,
       action: event.action,
       resource: event.resource,
-      result: event.result
+      result: event.result,
+      details: event.details
     };
 
-    await fs.appendFile(
-      this.logFile,
-      JSON.stringify(log) + '\n'
-    );
+    await this.store(logEntry);
   }
 
-  async query(filters: QueryFilters): Promise<AuditEvent[]> {
-    const logs = await this.readLogs();
-    return logs.filter(log => this.matches(log, filters));
+  async query(filters: AuditFilters): Promise<AuditEvent[]> {
+    // 查询审计日志
+    return this.database.query('audit_logs', filters);
   }
 }
 ```
@@ -160,12 +253,14 @@ class AuditLogger {
 ## ✅ 章节总结
 
 ### 入门级要点
-- ✅ 理解基本安全特性
-- ✅ 掌握安全检查
+- ✅ 理解安全重要性
+- ✅ 掌握基本安全特性
+- ✅ 了解安全检查
 
 ### 中级要点
 - ✅ 掌握权限管理
-- ✅ 理解安全配置
+- ✅ 理解安全钩子
+- ✅ 掌握最佳实践
 
 ### 专家级要点
 - ✅ 深入权限管理实现
@@ -177,10 +272,9 @@ class AuditLogger {
 ## 🎉 恭喜完成所有模块！
 
 你已经完成了 Claude Code 的深度学习！现在你可以：
-- ✅ 熟练使用 Claude Code 的所有功能
-- ✅ 深入理解各个模块的工作原理
-- ✅ 开发自定义插件、命令、代理和技能
-- ✅ 修改和扩展 Claude Code 源码
-- ✅ 贡献到 Claude Code 社区
+- ✅ 熟练使用所有功能
+- ✅ 深入理解工作原理
+- ✅ 开发自定义扩展
+- ✅ 修改和优化源码
 
 继续探索，成为 Claude Code 专家！🚀
