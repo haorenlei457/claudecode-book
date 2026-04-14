@@ -1029,6 +1029,11 @@ const mostCommonError = maxBy(Object.entries(errorTypes), ([, count]) => count);
 - ✅ 掌握安全策略
 - ✅ 了解市场集成
 
+### 📊 相关图表
+- **插件生命周期**：状态图，展示发现→验证→加载→激活→停用流程
+- **插件加载流程**：流程图，展示扫描→验证→依赖→加载→注册
+- 详细图表：[📊 可视化图表集](./VISUAL_GUIDE.md#插件系统)
+
 ---
 
 **下一步：** 学习 [03 - 命令系统](./03-command-system.md) 🚀

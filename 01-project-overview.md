@@ -152,10 +152,26 @@ Claude Code 通过文件系统构建智能上下文：
 ```
 
 **上下文加载优先级**：
-1. 当前目录的 `CLAUDE.md`
-2. 父目录的 `CLAUDE.md`
-3. 用户全局配置 `~/.claude/CLAUDE.md`
-4. 插件默认配置
+
+```mermaid
+graph TD
+    A[当前目录 CLAUDE.md] -->|最高优先级| B[最终上下文]
+    C[父目录 CLAUDE.md] -->|次高优先级| B
+    D[全局配置 CLAUDE.md] -->|默认配置| B
+    E[默认配置] -->|基础配置| B
+
+    style A fill:#e1f5e3
+    style B fill:#ffe5e5
+    style C fill:#ffe5cc
+    style D fill:#ffcccc
+    style E fill:#ffb3b3
+```
+
+**示例**：
+- 如果在 src/CLAUDE.md 和 ./CLAUDE.md 中定义了不同的编码规范
+- 在 src/ 目录下工作时，使用 src/CLAUDE.md 的配置
+
+**注意**：优先级：项目级 > 全局级 > 默认级
 
 #### 3. **多代理协作**
 
@@ -203,23 +219,18 @@ type HookEvent =
 
 #### 5. **渐进式复杂度**
 
-从简单到复杂的特性层次：
+```mermaid
+graph LR
+    A[第1层：基础对话<br/>自然语言交互，代码生成] --> B[第2层：命令系统<br/>/commit, /review, /optimize]
+    B --> C[第3层：记忆系统<br/>CLAUDE.md，项目上下文]
+    C --> D[第4层：插件系统<br/>自定义命令、代理、技能]
+    D --> E[第5层：高级特性<br/>MCP协议，多代理协作，Hook]
 
-```
-第1层：基础对话
-  └─ 自然语言交互，代码生成
-
-第2层：命令系统
-  └─ /commit, /review, /optimize
-
-第3层：记忆系统
-  └─ CLAUDE.md，项目上下文
-
-第4层：插件系统
-  └─ 自定义命令、代理、技能
-
-第5层：高级特性
-  └─ MCP协议，多代理协作，Hook
+    style A fill:#90CAF9
+    style B fill:#82C4D6
+    style C fill:#74B7C3
+    style D fill:#66AAAF
+    style E fill:#588DA8
 ```
 
 ---
