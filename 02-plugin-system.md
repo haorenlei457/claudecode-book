@@ -2,7 +2,7 @@
 
 ## 📋 模块介绍
 
-插件系统是 Claude Code 的核心扩展机制，理解它是自定义功能的关键。本章将通过大量的实际例子和图表，带你深入理解插件的工作原理和开发方法。
+插件系统是 Claude Code 的核心扩展机制，理解它对于自定义功能、开发插件和深度定制至关重要。本章将深入讲解插件的工作原理、开发方法和最佳实践。
 
 ---
 
@@ -12,210 +12,145 @@
 
 #### 简单来说
 
-**插件就像 Claude Code 的"应用商店"**，你可以像在手机上安装 App 一样，为 Claude Code 添加各种功能。
+**插件（Plugin）是**扩展 Claude Code 功能的模块化组件**，就像给浏览器安装扩展一样。
 
-#### 更具体的解释
+**简单理解**：
+- 🎯 **类比**：像 VS Code 的插件、Chrome 的扩展
+- 📦 **组成**：命令 + 代理 + 技能 + 钩子
+- 🔌 **作用**：为特定任务提供专业能力
 
-插件（Plugin）是一个**打包好的功能包**，包含以下内容的集合：
+### 插件能做什么？
 
-```
-插件 = 命令 + 代理 + 技能 + 钩子 + 配置
-```
-
-#### 形象类比
-
-| Claude Code | 插件 |
-|------------|------|
-| Claude Code | 应用商店 | |
-| `code-review` | 代码审查插件 | |
-| `commit-commands` | Git命令插件 | |
-| `feature-dev` | 功能开发插件 | |
-
----
-
-### 💡 插件能做什么？
-
-#### 1️⃣ 添加新功能
-
-```bash
-# 安装代码审查插件
-claude> /plugin install code-review
-
-# 使用代码审查功能
-claude> 审查当前PR
+```markdown
+✅ 添加新命令（如 /commit, /review）
+✅ 创建专业化 AI 代理
+✅ 提供可复用技能
+✅ 响应事件（自动执行）
+✅ 连接外部工具和服务
 ```
 
-**效果**：自动检查代码质量、安全性、最佳实践
+### 官方插件总览（13个）
 
-#### 2️⃣ 创建专业化代理
+Claude Code 官方提供了13个插件，覆盖完整的开发生态：
 
-```bash
-# 安装测试工程师代理
-claude> /plugin install test-engineer
+| 插件 | 功能 | 推荐度 |
+|------|------|--------|
+| **agent-sdk-dev** | Agent SDK开发 | ⭐⭐⭐⭐ |
+| **claude-opus-4-5-migration** | 模型迁移 | ⭐⭐⭐⭐⭐ |
+| **code-review** | 代码审查 | ⭐⭐⭐⭐⭐ |
+| **commit-commands** | Git命令自动化 | ⭐⭐⭐⭐⭐ |
+| **explanatory-output-style** | 解释性输出 | ⭐⭐⭐⭐ |
+| **feature-dev** | 功能开发工作流 | ⭐⭐⭐⭐⭐ |
+| **frontend-design** | 前端设计 | ⭐⭐⭐⭐ |
+| **hookify** | Hook创建工具 | ⭐⭐⭐⭐⭐ |
+| **learning-output-style** | 学习模式 | ⭐⭐⭐⭐ |
+| **plugin-dev** | 插件开发工具 | ⭐⭐⭐⭐ |
+| **pr-review-toolkit** | PR审查工具包 | ⭐⭐⭐⭐⭐ |
+| **ralph-wiggum** | 迭代循环 | ⭐⭐⭐⭐ |
+| **security-guidance** | 安全指导 | ⭐⭐⭐⭐⭐ |
 
-# 使用测试代理
-claude> @test-engineer 为这个函数编写测试
-```
+### 官方插件分类
 
-**效果**：专门处理测试相关的任务
+#### 🎯 开发工具类
+| 插件 | 功能 | 用途 |
+|--------|------|------|
+| **agent-sdk-dev** | Agent SDK开发工具 | 创建Agent应用 |
+| **plugin-dev** | 插件开发工具 | 创建插件 |
+| **feature-dev** | 功能开发 | 7步开发流程 |
 
-#### 3️⃣ 添加可复用技能
+#### 🔍 代码审查类
+| 插件 | 功能 | 用途 |
+|--------|------|------|
+| **code-review** | 代码审查 | 自动审查PR质量 |
+| **pr-review-toolkit** | PR审查工具包 | 多维度PR审查 |
 
-```bash
-# 安装文档生成技能
-claude> /plugin install doc-generator
+#### 🚀 Git自动化类
+| 插件 | 功能 | 用途 |
+|--------|------|------|
+| **commit-commands** | Git命令 | 简化提交流程 |
 
-# 使用文档生成
-claude> 生成 API 文档
-```
+#### 🎨 前端设计类
+| 插件 | 功能 | 用途 |
+|--------|------|------|
+| **frontend-design** | 前端设计 | 避免通用美学 |
 
-**效果**：自动生成规范的API文档
+#### 🧠 学习辅助类
+| 插件 | 功能 | 用途 |
+|--------|------|------|
+| **explanatory-output-style** | 解释性输出 | 添加教育性见解 |
+| **learning-output-style** | 学习模式 | 交互式学习 |
 
-#### 4️⃣ 响应特定事件
+#### 🔧 工具类
+| 插件 | 功能 | 用途 |
+|--------|------|------|
+| **hookify** | Hook管理 | 创建自定义Hook |
+| **ralph-wiggum** | 迭代循环 | 自动迭代开发 |
 
-```bash
-# 安装安全钩子插件
-claude> /plugin install security-hooks
+#### 🔄 迁移工具类
+| 插件 | 功能 | 用途 |
+|--------|------|------|
+| **claude-opus-4-5-migration** | 模型迁移 | 迁移到Opus 4.5 |
 
-# 写入敏感文件时会自动拦截
-claude> 写入 config/password.txt
-⚠️ 警告：检测到敏感信息
-```
+#### 🔒 安全类
+| 插件 | 功能 | 用途 |
+|--------|------|------|
+| **security-guidance** | 安全指导 | 预防安全问题 |
 
-#### 5️⃣ 连接外部服务
+### 官方插件快速参考
 
-```bash
-# 安装数据库 MCP
-claude> /mcp add database
-
-# 使用数据库
-claude> 查询最近100个订单
-```
-
-**效果**：直接查询数据库
-
----
-
-### 🎯 官方插件示例
-
-#### 1️⃣ code-review（代码审查）
-
-| 功能 | 说明 |
-|------|------|
-| 自动审查PR | 检查代码质量、安全性 |
-| 并行审查 | 多个代理同时审查 |
-| 置信度评分 | 防止误报 |
-| 生成审查报告 | 结构化的审查报告 |
-
-#### 2️⃣ commit-commands（Git命令）
-
-| 功能 | 说明 |
-|------|------|
-| /commit | 智能提交 |
-| /pr | 创建和管理PR |
-| /pr-merge | 合并PR |
-| /clean_gone | 清理幽灵分支 |
-
-#### 3️⃣ feature-dev（功能开发）
-
-| 功能 | 说明 |
-|------|------|
-| /feature-dev | 7步开发流程 |
-| 7个子代理 | 覆盖完整流程 |
-| 自动追踪 | 进度跟踪 |
-| 检查清单 | 完成度检查 |
-
-#### 4️⃣ plugin-dev（插件开发）
-
-| 功能 | 说明 |
-|------|------|
-| /plugin-dev:create-plugin | 8步向导创建 |
-| 7个专家技能 | 涵盖所有功能 |
-| AI辅助创建 | 半自动化 |
-| 完整验证 | 自动检查 |
-
-#### 5️⃣ hookify（Hook管理）
-
-| 功能 | 说明 |
-|------|------|
-| /hookify:create | 轻松创建钩子 |
-| /hookify:list | 列出所有钩子 |
-| /hookify:configure | 配置钩子 |
-| /hookify:help | 查看帮助 |
-
----
-
-### 🎯 如何使用插件？
-
-#### 方法1：命令安装（推荐）
-
-```bash
-# 1. 列出可用插件
-claude> /plugins list
-
-# 2. 安装插件
-claude> /plugin install code-review
-
-# 3. 查看已安装
-claude> /plugins list
-```
-
-#### 方法2：手动安装
-
-```bash
-# 1. 克隆官方仓库
-git clone https://github.com/anthropics/claude-code.git
-
-# 2. 复制插件
-cp -r claude-code/plugins/code-review/.claude ~/.claude/
-
-# 3. 配置插件
-cat > ~/.claude/settings.json << EOF
+#### 基础插件（必装）
+```json
 {
-  "plugins": ["code-review"]
+  "plugins": [
+    "commit-commands",      // Git自动化
+    "code-review",          // 代码审查
+    "security-guidance"     // 安全检查
+  ]
 }
-EOF
 ```
 
-#### 方法3：项目级安装
-
-```bash
-# 复制到项目
-cp -r my-plugin .claude/plugins/
-
-# 插件会自动在当前项目加载
+#### 进阶插件（推荐）
+```json
+{
+  "plugins": [
+    "feature-dev",          // 功能开发
+    "pr-review-toolkit",    // PR审查
+    "hookify"              // Hook创建
+  ]
+}
 ```
 
----
-
-### 📦 插件文件结构
-
-标准的插件目录结构：
-
+#### 学习插件
+```json
+{
+  "plugins": [
+    "learning-output-style",    // 学习模式
+    "explanatory-output-style" // 解释性输出
+  ]
+}
 ```
-my-plugin/
-├── .claude-plugin/
-│   └── plugin.json          # 插件元数据（必需）
-├── commands/                # 命令（可选）
-│   └── command1.md
-│   └── command2.md
-├── agents/                  # 代理（可选）
-│   └── agent1.md
-│   └── agent2.md
-├── skills/                  # 技能（可选）
-│   ├── skill1/
-│   │   ├── SKILL.md
-│   │   └── examples.md
-│   └── skill2/
-│       ├── SKILL.md
-│       └── examples.md
-├── hooks/                   # 钩子（可选）
-│   ├── hook1.sh
-│   └── hook2.sh
-├── .mcp.json                # MCP配置（可选）
-├── README.md                # 说明文档（推荐）
-└── LICENSE                 # 许可证（推荐）
+
+#### 专业插件（高级）
+```json
+{
+  "plugins": [
+    "agent-sdk-dev",       // Agent开发
+    "plugin-dev",          // 插件开发
+    "frontend-design",     // 前端设计
+    "ralph-wiggum"        // 迭代循环
+  ]
+}
 ```
+
+### 插件详细说明
+
+**详细内容请参阅：[13 - 官方插件详解](./13-official-plugins.md)**
+
+每个官方插件的详细介绍：
+- 功能说明
+- 使用方法
+- 最佳实践
+- 实际案例
 
 ---
 
@@ -232,7 +167,6 @@ my-plugin/
   "description": "我的第一个插件",
   "author": "Your Name",
   "type": "plugin",
-  "main": "./plugin-entry.js",
   "category": "development",
   "keywords": ["productivity", "automation"],
   "dependencies": {
@@ -599,14 +533,119 @@ graph LR
 
 ---
 
-## 📚 实战案例：开发完整的插件系统
+## 🚨 故障排查
+
+### 常见问题与解决方案
+
+#### 1. 插件未加载
+
+**症状**：
+```
+claude> /plugin list
+[插件未加载]
+```
+
+**可能原因**：
+- 插件配置错误
+- 插件路径不正确
+- 插件损坏
+
+**解决方案**：
+```bash
+# 1. 检查插件配置
+cat .claude/plugins/插件名/.claude-plugin/plugin.json
+
+# 2. 验证插件路径
+ls -la .claude/plugins/
+
+# 3. 重新安装插件
+claude> /plugin reinstall 插件名
+```
+
+#### 2. 插件冲突
+
+**症状**：
+```
+claude> 使用插件
+[插件冲突]
+```
+
+**可能原因**：
+- 多个插件定义相同命令
+- 权限冲突
+- 依赖版本冲突
+
+**解决方案**：
+```bash
+# 1. 列出所有插件
+claude> /plugins list
+
+# 2. 检查命令冲突
+claude> /plugins conflicts
+
+# 3. 禁用冲突插件
+claude> /plugin disable 插件名
+```
+
+#### 3. 插件性能问题
+
+**症状**：
+```
+claude> 运行插件
+[响应缓慢]
+```
+
+**可能原因**：
+- 插件执行时间过长
+- 资源占用过高
+- 并发数过多
+
+**解决方案**：
+```bash
+# 1. 监控插件性能
+claude> /plugins performance
+
+# 2. 优化插件配置
+claude> /plugins optimize
+
+# 3. 限制并发数
+claude> /plugins limit 并发数
+```
+
+---
+
+## 📊 最佳实践清单
+
+### 插件开发
+
+- [ ] 遵循插件规范
+- [ ] 编写完整文档
+- [ ] 添加测试用例
+- [ ] 处理错误情况
+- [ ] 优化性能
+
+### 插件使用
+
+- [ ] 根据需求选择插件
+- [ ] 定期更新插件
+- [ ] 监控插件性能
+- [ ] 处理插件冲突
+- [ ] 备份插件配置
+
+### 插件维护
+
+- [ ] 跟进官方更新
+- [ ] 修复已知问题
+- [ ] 添加新功能
+- [ ] 优化性能
+- [ ] 更新文档
+
+---
+
+## 📚 实战案例：完整插件系统
 
 ### 需求
-创建一个完整的代码质量管理插件，包含多个组件：
-- 代码审查命令
-- 代码审查代理
-- 代码审查技能
-- 安全检查钩子
+创建一个完整的代码质量管理插件，包含多个组件：命令、代理、技能、Hook。
 
 ### 实现
 
@@ -692,13 +731,14 @@ permissions:
   - "git:log"
 ---
 
-你是代码审查专家。
+你是代码审查专家。请按照以下步骤审查代码：
 
 ## 审查重点
 - 代码可读性
 - 性能优化
 - 错误处理
 - 命名规范
+- 文档注释
 ```
 
 #### 5. 完成测试
@@ -723,7 +763,8 @@ claude> 审查这个文件的代码质量
 ### 入门级要点
 - ✅ 理解插件是什么
 - ✅ 掌握插件的基本使用方法
-- ✅ 了解官方插件示例
+- ✅ 了解所有13个官方插件
+- ✅ 学会插件分类和选择
 - ✅ 学会创建第一个插件
 
 ### 中级要点
@@ -731,6 +772,7 @@ claude> 审查这个文件的代码质量
 - ✅ 理解插件元数据
 - ✅ 理解组件导出方式
 - ✅ 学会依赖管理
+- ✅ 掌握插件生命周期
 
 ### 专家级要点
 - ✅ 深入插件系统架构
@@ -738,14 +780,18 @@ claude> 审查这个文件的代码质量
 - ✅ 理解插件通信方式
 - ✅ 掌握安全策略
 - ✅ 了解市场集成
+- ✅ 掌握故障排查方法
 
 ### 📊 相关图表
-- 🔄 **插件生命周期**：状态图，展示发现→验证→加载→激活→停用流程
-- 📋 **插件加载流程**：流程图，展示扫描→验证→依赖→加载→注册
-- 🤖 **代理协作机制**：流程图，展示多个代理的并行协作
-- 🧩 **插件沙箱架构**：组件架构图，展示隔离和通信
+
+- 🔄 **插件生命周期状态图**：展示发现→验证→加载→激活→停用的完整生命周期
+- 📋 **插件加载流程图**：展示扫描→验证→依赖→加载→注册的详细步骤
+- 🤖 **代理协作机制图**：展示多个代理的并行协作
+- 🧩 **插件沙箱架构图**：展示隔离和通信
 
 **详细图表**：[📊 可视化图表集](./VISUAL_GUIDE.md#插件系统)
+
+**官方插件详解**：[13 - 官方插件详解](./13-official-plugins.md)
 
 ---
 
