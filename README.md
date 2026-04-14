@@ -4,6 +4,15 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/haorenlei457/claudecode-book?style=social)](https://github.com/haorenlei457/claudecode-book)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-130k%20words-brightgreen.svg)](https://github.com/haorenlei457/claudecode-book)
+[![Projects](https://img.shields.io/badge/projects-5-purple.svg)](https://github.com/haorenlei457/claudecode-book)
+
+<div align="center">
+  <h3>🚀 超过130,000字的完整教程</h3>
+  <p>从入门到专家级，200+代码示例，5个实战项目</p>
+</div>
+
+---
 
 ## 🎯 关于本指南
 
@@ -15,82 +24,134 @@
 - 🔬 **修改和扩展** 源码以满足特定需求
 - 🤝 **贡献** 代码到 Claude Code 社区
 
-## 📚 文档结构
+---
+
+## 📚 完整文档导航
 
 ### 📖 核心教程（12个模块）
 
-1. [项目概述与架构](./01-project-overview.md) - 全面了解Claude Code
-2. [插件系统](./02-plugin-system.md) - 扩展功能的核心机制
-3. [命令系统](./03-command-system.md) - Slash Commands详解
-4. [代理系统](./04-agent-system.md) - 多代理协作机制
-5. [技能系统](./05-skill-system.md) - 可复用能力包
-6. [钩子系统](./06-hook-system.md) - 事件驱动自动化
-7. [MCP协议集成](./07-mcp-protocol.md) - 连接外部服务
-8. [配置系统](./08-configuration.md) - 配置管理详解
-9. [文件操作与上下文管理](./09-file-context.md) - 项目理解机制
-10. [Git集成](./10-git-integration.md) - 版本控制自动化
-11. [终端交互](./11-terminal-interaction.md) - 命令行操作
-12. [安全机制](./12-security.md) - 安全防护体系
+从基础到进阶，系统性学习所有核心功能：
+
+| 模块 | 标题 | 难度 | 时间 |
+|------|------|------|------|
+| 01 | [项目概述与架构](./01-project-overview.md) | ⭐⭐⭐ | 45min |
+| 02 | [插件系统](./02-plugin-system.md) | ⭐⭐⭐⭐ | 60min |
+| 03 | [命令系统](./03-command-system.md) | ⭐⭐⭐ | 45min |
+| 04 | [代理系统](./04-agent-system.md) | ⭐⭐⭐⭐⭐ | 60min |
+| 05 | [技能系统](./05-skill-system.md) | ⭐⭐⭐⭐ | 45min |
+| 06 | [钩子系统](./06-hook-system.md) | ⭐⭐⭐⭐ | 60min |
+| 07 | [MCP协议集成](./07-mcp-protocol.md) | ⭐⭐⭐⭐ | 45min |
+| 08 | [配置系统](./08-configuration.md) | ⭐⭐ | 30min |
+| 09 | [文件操作与上下文管理](./09-file-context.md) | ⭐⭐⭐ | 45min |
+| 10 | [Git集成](./10-git-integration.md) | ⭐⭐⭐ | 45min |
+| 11 | [终端交互](./11-terminal-interaction.md) | ⭐⭐ | 30min |
+| 12 | [安全机制](./12-security.md) | ⭐⭐⭐ | 30min |
 
 ### 🚀 辅助文档
 
-- [🛠️ 环境搭建指南](./SETUP_GUIDE.md) - 快速开始安装配置
-- [🎯 学习路径指南](./LEARNING_PATH.md) - 系统化学习计划
-- [💡 实战项目集](./PRACTICE_PROJECTS.md) - 5个完整实战项目
+- **[🛠️ 环境搭建指南](./SETUP_GUIDE.md)** - 快速开始安装配置
+- **[🎯 学习路径指南](./LEARNING_PATH.md)** - 3天系统化学习计划
+- **[💡 实战项目集](./PRACTICE_PROJECTS.md)** - 5个完整实战项目
 
-## 🎓 学习路径
+### 📖 查询工具
 
-### 入门级（第1天）
-学习模块 01-03，掌握基础使用：
-- 理解 Claude Code 是什么
-- 掌握插件安装和使用
-- 学会创建自定义命令
+- **[❓ 常见问题解答](./FAQ.md)** - 26个常见问题及解决方案
+- **[📖 词汇表](./GLOSSARY.md)** - 50+术语详细解释
+- **[⚡ 速查手册](./CHEATSHEET.md)** - 命令、配置、快捷速查
 
-### 中级（第2天）
-学习模块 04-07，掌握高级功能：
+---
+
+## 🎓 推荐学习路径
+
+### 第1天：基础入门（2-3小时）
+```
+01 → 02 → 03
+```
+- 了解 Claude Code 是什么
+- 掌握插件和命令系统
+- 学会创建第一个插件
+
+### 第2天：进阶学习（3-4小时）
+```
+04 → 05 → 06 → 07
+```
 - 理解代理和技能系统
-- 掌握钩子自动化
-- 学会集成外部服务
+- 掌握钩子和MCP集成
+- 学会创建专业化代理
 
-### 专家级（第3天）
-学习模块 08-12，深入源码：
+### 第3天：高级深入（4-5小时）
+```
+08 → 09 → 10 → 11 → 12
+```
 - 理解配置和上下文管理
 - 掌握Git和终端集成
-- 理解安全机制实现
+- 深入安全机制
 
-详细学习计划请查看 [学习路径指南](./LEARNING_PATH.md)。
+📝 **详细学习计划**：[学习路径指南](./LEARNING_PATH.md)
 
-## 💡 内容分级
+---
+
+## 💡 内容特色
+
+### 三级难度体系
 
 每个模块都包含三个难度级别：
 
-| 级别 | 颜色 | 适合人群 | 内容 |
-|------|------|----------|------|
-| 🟢 入门级 | 绿色 | 初学者 | 快速上手，基本概念 |
-| 🟡 中级 | 黄色 | 有经验者 | 深入理解，实际应用 |
-| 🔴 专家级 | 红色 | 高级用户 | 源码分析，架构设计 |
+| 级别 | 颜色 | 内容 | 适合人群 |
+|------|------|------|----------|
+| 🟢 入门级 | 绿色 | 快速上手，基本概念 | 初学者 |
+| 🟡 中级 | 黄色 | 深入理解，实际应用 | 有经验者 |
+| 🔴 专家级 | 红色 | 源码分析，架构设计 | 高级用户 |
 
-## 🛠️ 快速开始
+### 丰富的代码示例
 
-### 1. 环境搭建
+- 💻 **200+ 代码示例** - 可直接运行
+- 🔧 **完整配置文件** - 开箱即用
+- 📊 **架构图和流程图** - 可视化理解
+- 🎯 **实战案例分析** - 真实场景应用
 
-查看 [环境搭建指南](./SETUP_GUIDE.md) 完成安装配置。
-
-### 2. 开始阅读
-
-从 [01-项目概述与架构](./01-project-overview.md) 开始系统学习。
-
-### 3. 动手实践
-
-跟随 [实战项目集](./PRACTICE_PROJECTS.md) 完成5个项目。
+---
 
 ## 📊 内容统计
 
-- 📄 **12个模块** - 覆盖所有核心功能
-- 📝 **约10万字** - 详细的文字说明
-- 💻 **200+代码示例** - 可直接运行的代码
-- 🎯 **5个实战项目** - 从入门到专家
-- 🔧 **完整配置示例** - 开箱即用
+| 项目 | 数量 |
+|------|------|
+| 📄 核心模块 | 12个 |
+| 📝 总字数 | 约130,000字 |
+| 💻 代码示例 | 200+ |
+| 🎯 实战项目 | 5个 |
+| 📖 词汇条目 | 50+ |
+| ❓ 常见问题 | 26个 |
+| 🌈 可视化图表 | 15+ |
+
+---
+
+## 🛠️ 快速开始
+
+### 1. 环境搭建（15分钟）
+
+查看 [环境搭建指南](./SETUP_GUIDE.md) 完成安装配置：
+
+```bash
+# macOS/Linux
+curl -fsSL https://claude.ai/install.sh | bash
+
+# 配置 API 密钥
+export ANTHROPIC_API_KEY="your-api-key"
+
+# 验证安装
+claude --version
+```
+
+### 2. 开始学习（3天）
+
+从 [01-项目概述与架构](./01-project-overview.md) 开始，按照 [学习路径](./LEARNING_PATH.md) 系统学习。
+
+### 3. 动手实践（可选）
+
+完成 [实战项目集](./PRACTICE_PROJECTS.md) 中的5个项目，巩固所学知识。
+
+---
 
 ## 🎯 学习目标
 
@@ -103,21 +164,27 @@
 - ✅ **优化** 性能和用户体验
 - ✅ **贡献** 代码到 Claude Code 社区
 
+---
+
 ## 🔗 相关资源
 
 ### 官方资源
 - [Claude Code 官方文档](https://code.claude.com/docs/en/overview)
 - [Claude Code GitHub](https://github.com/anthropics/claude-code)
 - [Anthropic 官网](https://www.anthropic.com)
+- [Claude API 文档](https://docs.anthropic.com)
 
 ### 社区资源
-- [Discord 社区](https://anthropic.com/discord)
+- [Discord 社区](https://anthropic.com/discord) - 实时讨论
+- [GitHub Issues](https://github.com/anthropics/claude-code/issues) - 问题报告
 - [官方插件示例](https://github.com/anthropics/claude-code/tree/main/plugins)
-- [Awesome Claude Code](https://github.com/hesreallyhim/awesome-claude-code)
+- [Awesome Claude Code](https://github.com/hesreallyhim/awesome-claude-code) - 资源集合
+
+---
 
 ## 🤝 贡献指南
 
-欢迎提交 Issue 和 PR：
+欢迎提交 Issue 和 PR！
 
 1. Fork 本仓库
 2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
@@ -125,18 +192,42 @@
 4. 推送分支 (`git push origin feature/AmazingFeature`)
 5. 创建 Pull Request
 
-## 📝 许可证
-
-本项目采用 [MIT 许可证](LICENSE) 开源。
-
-## 🙏 致谢
-
-- [Anthropic](https://www.anthropic.com) - 开发 Claude Code
-- Claude Code 社区 - 提供灵感和支持
-- 所有贡献者 - 帮助改进文档
+### 贡献类型
+- 📝 文档改进
+- 🐛 Bug 修复
+- ✨ 新功能
+- 🎨 代码优化
+- 📖 示例补充
 
 ---
 
-**开始你的 Claude Code 深度学习之旅！** 🚀
+## 📊 项目概览
 
-从 [项目概述与架构](./01-project-overview.md) 开始吧！
+```mermaid
+graph LR
+    A[核心教程<br/>12个模块] --> B[辅助文档<br/>3个]
+    A --> C[查询工具<br/>3个]
+    B --> D[实战项目<br/>5个]
+    C --> D
+    D --> E[完成学习<br/>Claude Code专家]
+```
+
+---
+
+## 🎉 开始学习
+
+**准备好了吗？开始你的 Claude Code 深度学习之旅！**
+
+从 [01-项目概述与架构](./01-project-overview.md) 开始吧！🚀
+
+---
+
+<div align="center">
+
+**⭐ 如果这个项目对你有帮助，请给它一个 Star！**
+
+[![Star History Chart](https://api.star-history.com/svg?repos=haorenlei457/claudecode-book&type=Date)](https://star-history.com/#haorenlei457/claudecode-book&Date)
+
+**Made with ❤️ by Claude Code Community**
+
+</div>
