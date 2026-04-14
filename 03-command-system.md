@@ -2,397 +2,316 @@
 
 ## 📋 模块介绍
 
-命令系统是 Claude Code 与用户交互的核心界面，通过斜杠命令（`/command`）提供快速、可复用的功能。本章将全面讲解命令的设计、开发和使用。
+命令系统是 Claude Code 的"快捷键"，让你通过斜杠命令快速执行常用操作。本章将详细介绍命令的设计、创建方法和使用技巧。
 
 ---
 
 ## 🟢 入门级：命令基础
 
-### 什么是命令？
+### 🤔 什么是命令？
 
-命令（Command）是以 `/` 开头的快捷指令，用于触发特定功能。
+#### 简单理解
+
+**命令（Command）就是 Claude Code 的"快捷键"**，通过 `/` 开头的简短指令快速执行特定功能。
 
 **类比理解**：
-- 📱 类似微信/Slack 的 `/commands`
-- 🎮 类似游戏的快捷键
-- 🔧 类似 CLI 的 alias
+- 📱 像像手机App的快捷方式
+- ⌨️ 像像 VS Code 的快捷键
+- 🔧 像像 Chrome 浏览器的快捷键
 
-### 命令 vs 自然语言
+#### 具体例子
 
 ```bash
-# 自然语言方式
-claude> 帮我创建一个Git提交，消息是"修复登录bug"
+# 快捷命令 vs 传统方式
 
-# 命令方式
+# 传统方式（多步操作）
+1. 查看git状态
+2. 运行git status
+3. 查看变更的文件
+4. 运行git add .
+5. 运行git commit -m "消息"
+6. 运行git push
+
+# 使用命令（一步完成）
 claude> /commit 修复登录bug
 ```
 
-**命令的优势**：
-- ⚡ 更快 - 一行搞定
-- 🎯 更准 - 不需要AI理解意图
-- 🔁 可复用 - 多次使用
-- 📝 可记录 - 易于追踪
+**优势**：
+- ⚡ **快速** - 一条命令完成多步操作
+- 🎯 **精准** - 专门针对特定任务
+- 🔁 **可复用** - 可以保存常用的命令
+- 💬 **智能** - 自动分析和处理
 
-### 常用命令示例
+---
+
+### 🎯 命令类型
+
+#### 1️⃣ 快捷操作类
 
 | 命令 | 功能 | 示例 |
 |------|------|------|
-| `/commit` | 创建Git提交 | `/commit 修复登录问题` |
+| `/commit` | 智能Git提交 | `/commit 修复bug` |
 | `/review` | 代码审查 | `/review main.py` |
-| `/optimize` | 代码优化 | `/optimize` |
 | `/test` | 运行测试 | `/test --watch` |
-| `/docs` | 生成文档 | `/docs API.md` |
 | `/deploy` | 部署应用 | `/deploy staging` |
 
-### 命令的组成部分
+#### 2️⃣ 信息查询类
 
+| 命令 | 功能 | 示例 |
+|------|------|------|
+| `/help` | 显示帮助 | `/help` |
+| `/version` | 显示版本 | `/version` |
+| `/status` | 显示状态 | `/status` |
+| `/plugins list` | 列出插件 | `/plugins list` |
+
+#### 3️⃣ 开发工具类
+
+| 命令 | 功能 | 示例 |
+|------|------|------|
+| `/plugin install` | 安装插件 | `/plugin install code-review` |
+| `/plugin list` | 列出插件 | `/plugin list` |
+| `/config show` | 显示配置 | `/config show` |
+
+---
+
+### 🎨 命令格式结构
+
+```markdown
+---
+name: "命令名称"
+description: "命令描述"
+alias: ["/别名1", "/别名2"]  # 可选
+options:          # 选项定义
+  - name: "option1"
+    type: string|number|boolean
+    default: "默认值"
+    required: false
+    description: "选项说明"
+  - name: "option2"
+    type: string
+    description: "选项说明"
+---
+
+命令内容...
+
+{{args}}            # 位置参数
+{{options}}         # 选项参数
+{{file:read file}}    # 工具调用
+{{bash:run cmd}}    # 命令执行
+---
+
+{{tools}}           # 可用工具列表
+- file:read  - 读取文件
+- file:write - 写入文件
+- git:status - Git状态
+- bash:run  - 执行命令
 ```
-/command [参数] [选项]
 
-  ↓      ↓       ↓
-命令名  必选参数 可选参数
+---
+
+### 🔄 命令解析流程
+
+```mermaid
+graph TD
+    A[用户输入] --> B{检查是否为命令}
+    B -->|以/开头| C[提取命令名]
+    B -->|普通文本| D[路由到AI模型]
+    
+    C --> E[提取参数]
+    E --> F[提取选项]
+    
+    F --> G[查找命令定义]
+    G --> H{命令存在?}
+    H -->|是| I[验证参数]
+    H -->|否| J[查找别名]
+    
+    I --> K[执行命令]
+    J --> K
+    
+    K --> L{执行成功?}
+    L -->|是| M[返回结果]
+    L -->|否| N[执行失败]
+    
+    N --> O[错误处理]
+    M --> P[显示成功]
+    
+    D --> Q[AI生成回复]
+    Q --> R[AI模型处理]
+    R --> P
 ```
 
-**示例**：
+**解析步骤说明**：
+
+1. **识别**：判断输入是否以 `/` 开头
+2. **解析**：提取命令名、参数、选项
+3. **查找**：在已注册的命令中查找
+4. **验证**：验证参数和选项是否正确
+5. **执行**：执行命令逻辑
+6. **返回**：返回执行结果或错误信息
+
+---
+
+## 🟡 命令参数详解
+
+### 1. 位置参数
 
 ```bash
-# 简单命令
-/commit
+# 使用空格分隔多个参数
+claude> /format src/app.ts tests/app.spec.ts
 
-# 带参数
-/commit 修复bug
-
-# 带选项
-/commit --amend --no-verify
-
-# 复杂命令
-/deploy --env production --skip-tests --tag v1.0.0
+# 在命令中访问
+{{args.0}}  # 第一个参数 → src/app.ts
+{{args.1}}  # 第二个参数 → tests/app.spec.ts
+{{args.2}}  # 第三个参数 → ...
 ```
 
-### 如何使用命令？
-
-#### 1. 查看可用命令
+### 2. 命名参数（选项）
 
 ```bash
-$ claude
-claude> /help
-可用命令：
-  /commit    - 创建Git提交
-  /review    - 代码审查
-  /optimize  - 优化代码
-  /test      - 运行测试
-  ...
+# 使用 -- 或 - 指定选项名
+claude> /format --file README.md
+
+# 使用 = 指定等号
+claude> /format --mode comprehensive
+
+# 使用短选项
+claude> /format -f README.md
+
+# 组合使用
+claude> /format --file README.md --mode comprehensive
 ```
 
-#### 2. 查看命令帮助
+**常用选项类型**：
+
+| 类型 | 说明 | 示例 |
+|------|------|------|
+| string | 文本或路径 | `--file README.md` |
+| number | 数字 | `--limit 10` |
+| boolean | 开关 | `--verbose`, `--force` |
+| array | 列表 | `--tags main,backend` |
+
+### 3. 混合使用
 
 ```bash
-claude> /help commit
-命令：/commit
-描述：创建符合规范的Git提交消息
-
-用法：
-  /commit [消息]
-
-示例：
-  /commit 修复登录bug
-  /commit feat: 添加用户注册功能
-
-选项：
-  --amend    修改最后一次提交
-  --no-verify 跳过Git hooks
-```
-
-#### 3. 执行命令
-
-```bash
-claude> /commit 修复登录验证问题
-
-✅ 已创建提交：
-commit abc123def
-Author: Your Name <you@example.com>
-Date:   Mon Apr 14 12:00:00 2026
-
-    fix: 修复登录验证问题
-
-    - 修复了token验证逻辑
-    - 添加了错误处理
-    - 更新了单元测试
+claude> /format --file README.md --tags web,backend --limit 20
 ```
 
 ---
 
-## 🟡 中级：命令开发与设计
+## 🧪 创建自定义命令
 
-### 命令定义格式
-
-命令使用 Markdown + YAML frontmatter 定义：
-
-```markdown
----
-name: "commit"
-description: "Create a Git commit with message"
-alias: ["/git-commit", "/ci"]
-options:
-  - name: "amend"
-    type: "boolean"
-    description: "Amend the last commit"
-  - name: "message"
-    type: "string"
-    required: true
-    description: "Commit message"
----
-
-你是Git提交专家。请按照以下步骤操作：
-
-1. **分析变更**
-   - 检查git状态
-   - 查看暂存文件
-   - 分析代码差异
-
-2. **生成消息**
-   - 遵循Conventional Commits
-   - 包含必要的细节
-   - 符合项目规范
-
-3. **执行提交**
-   {{git:commit --message="{{message}}" {{amend}}}}
-
-4. **验证结果**
-   - 确认提交成功
-   - 显示提交信息
-
-{{args}}
-{{options}}
-```
-
-### Frontmatter 字段详解
-
-| 字段 | 类型 | 必需 | 说明 |
-|------|------|------|------|
-| `name` | string | ✅ | 命令唯一标识 |
-| `description` | string | ✅ | 命令描述 |
-| `alias` | string[] | ❌ | 命令别名 |
-| `options` | Option[] | ❌ | 命令选项 |
-| `permissions` | string[] | ❌ | 需要的权限 |
-| `category` | string | ❌ | 命令分类 |
-
-### 命令参数处理
-
-#### 1. 位置参数
-
-```markdown
----
-name: "greet"
-description: "Greet someone"
----
-
-你好，{{args.0}}！
-
-{{#if args.1}}
-今天天气不错，{{args.1}}
-{{/if}}
-```
-
-使用：
-```bash
-claude> /greet 世界
-你好，世界！
-
-claude> /greet 世界 适合写代码
-你好，世界！
-今天天气不错，适合写代码
-```
-
-#### 2. 命名参数
-
-```markdown
----
-name: "deploy"
-description: "Deploy application"
-options:
-  - name: "env"
-    type: "string"
-    default: "production"
-  - name: "skip-tests"
-    type: "boolean"
-    default: false
----
-
-部署到 {{options.env}} 环境...
-
-{{#unless options.skip-tests}}
-运行测试...
-{{/unless}}
-
-开始部署...
-```
-
-使用：
-```bash
-claude> /deploy --env staging --skip-tests
-部署到 staging 环境...
-
-开始部署...
-```
-
-### 命令模板语法
-
-#### 1. 变量插值
-
-```markdown
-用户输入：{{args.0}}
-选项值：{{options.verbose}}
-环境变量：{{env.HOME}}
-```
-
-#### 2. 条件判断
-
-```markdown
-{{#if options.verbose}}
-详细模式已启用
-{{/if}}
-
-{{#unless options.skip-tests}}
-运行测试...
-{{/unless}}
-```
-
-#### 3. 循环
-
-```markdown
-{{#each args}}
-处理文件: {{this}}
-{{/each}}
-```
-
-#### 4. 工具调用
-
-```markdown
-{{file:read ./config.json}}
-
-{{git:status}}
-
-{{bash:run npm test}}
-```
-
-### 创建自定义命令
-
-#### 步骤1：创建命令文件
+### 步骤1：创建命令文件
 
 ```bash
 mkdir -p .claude/commands
 ```
 
-#### 步骤2：编写命令
-
-创建 `.claude/commands/generate-report.md`：
+### 步骤2：编写命令
 
 ```markdown
+# .claude/commands/backup.md
 ---
-name: "generate-report"
-description: "Generate project report"
-alias: ["/report", "/stats"]
+name: "backup"
+description: "Create project backup"
+alias: ["/bk", "/backup"]
+options:
+  - name: "compress"
+    type: "type
+    default: "false"
+    description: "压缩备份"
+  - name: "upload"
+    type: "boolean"
+    default: "false"
+    description: "上传到云存储"
 ---
 
-生成项目报告...
+你是一个备份专家。请按照以下步骤创建备份：
 
-## 代码统计
+## 1. 收集项目信息
+- 获取项目名称：{{ask:项目名称}}
+- 获取项目路径：`pwd`
+- 获取Git分支：{{git:branch --show-current}}
 
-{{bash:run find . -name "*.py" -type f | wc -l}} 个 Python 文件
-{{bash:run find . -name "*.js" -type f | wc -l}} 个 JavaScript 文件
-
-## Git 信息
-
-当前分支：{{bash:run git branch --show-current}}
-最近提交：{{bash:run git log -1 --pretty=format:"%h - %s (%cr)"}}
-
-## 测试状态
-
-{{bash:run npm test -- --passWithNoTests}}
-
-## 报告生成时间
-{{date}}
+## 2. 确认备份信息
 ```
 
-#### 步骤3：测试命令
+### 步骤3：安装命令
 
 ```bash
-$ claude
-claude> /generate-report
-生成项目报告...
+# 查看当前命令
+claude> /commands list
 
-## 代码统计
-42 个 Python 文件
-15 个 JavaScript 文件
-
-## Git 信息
-当前分支：main
-最近提交：abc123 - 修复bug (2小时前)
-
-## 测试状态
-✅ 所有测试通过
-
-## 报告生成时间
-2026-04-14 12:00:00
-```
-
-### 命令权限管理
-
-```markdown
----
-name: "deploy-prod"
-description: "Deploy to production"
-permissions:
-  - "git:write"
-  - "file:read"
-  - "bash:run"
----
-
-部署到生产环境...
-
-⚠️  警告：这将影响生产环境！
-
-请确认：
-1. 代码已测试
-2. 回滚方案已准备
-3. 团队已通知
-
-{{#confirm}}
-继续部署？
-{{/confirm}}
+# 测试命令
+claude> /backup
 ```
 
 ---
 
 ## 🔴 专家级：命令系统深度剖析
 
+### 🎯 命令执行引擎架构
+
+```mermaid
+sequenceDiagram
+    participant User as 用户
+    participant CLI as 命令行界面
+    participant Router as 命令路由器
+    Commander as 命令处理器
+    TemplateEngine as 模板引擎
+    ToolExecutor as 工具执行器
+    Claude as AI模型
+    Output as 输出
+
+    User->>CLI: 输入 /format file.md
+    CLI->>Router: 解析命令
+    Router->>Command: 查找命令定义
+    Command->>Router: 返回配置
+    Router->>TemplateEngine: 加载模板
+    
+    TemplateEngine->>Claude: 解析上下文
+    Claude->>ToolExecutor: 执行工具
+    ToolExecutor->>ToolExecutor: 读取文件
+    ToolExecutor->>Claude: 返回文件内容
+    Claude->>TemplateEngine: 渲染模板
+    TemplateEngine->>CLI: 返回结果
+    CLI->>User: 显示格式化结果
+```
+
+**关键组件说明**：
+
+| 组件 | 功能 | 说明 |
+|------|------|------|
+| **Router** | 命令路由 | 查找和匹配命令 |
+| **Command** | 命令定义 | 命令的元数据和逻辑 |
+| **TemplateEngine** | 模板引擎 | 渲染模板（Handlebars风格） |
+| **ToolExecutor** | 工具执行器 | 执行文件、Git、Bash操作 |
+
+---
+
 ### 命令解析器实现
 
 ```typescript
 class CommandParser {
-  private commands: Map<string, Command>;
-
   parse(input: string): ParseResult {
     // 1. 检查是否是命令
     if (!input.startsWith('/')) {
       return { type: 'chat', content: input };
     }
-
-    // 2. 提取命令部分
+    
+    // 2. 分割命令
     const parts = input.slice(1).split(/\s+/);
     const commandName = parts[0];
     const rawArgs = parts.slice(1);
-
-    // 3. 查找命令定义
+    
+    // 3. 查找命令
     const command = this.findCommand(commandName);
     if (!command) {
       return { type: 'error', message: 'Unknown command' };
     }
-
+    
     // 4. 解析参数和选项
     const { args, options } = this.parseArguments(rawArgs, command);
-
+    
     return {
       type: 'command',
       command,
@@ -400,539 +319,181 @@ class CommandParser {
       options
     };
   }
-
+  
   private parseArguments(
-    raw: string[],
+    rawArgs: string[],
     command: Command
   ): { args: string[], options: Record<string, any> } {
     const args: string[] = [];
     const options: Record<string, any> = {};
-
-    for (let i = 0; i < raw.length; i++) {
-      const token = raw[i];
-
-      // 选项
-      if (token.startsWith('--')) {
-        const key = token.slice(2);
-        const value = raw[i + 1];
-
-        if (command.options.find(o => o.name === key)) {
-          options[key] = value || true;
-          if (value) i++; // 跳过值
-        }
-      }
-      // 短选项
-      else if (token.startsWith('-')) {
-        const key = token.slice(1);
-        const option = command.options.find(o =>
-          o.short && o.short === key
+    
+    for (const arg of rawArgs) {
+      // 检查是否是选项
+      if (arg.startsWith('--') {
+        const optionName = arg.slice(2);
+        const option = command.options.find(opt => 
+          opt.name === optionName
         );
-
+        
         if (option) {
-          const value = raw[i + 1];
-          options[option.name] = value || true;
-          if (value && option.type !== 'boolean') i++;
+          let value: any;
+          
+          if (option.type === 'boolean') {
+            value = true;
+          } else if (option.type === 'number') {
+            value = parseFloat(args[index + 1]) || option.default;
+          } else {
+            value = args[index + 1] || option.default;
+          }
+          
+          options[option.name] = value;
         }
-      }
-      // 位置参数
-      else {
-        args.push(token);
       }
     }
-
+    
     return { args, options };
   }
 }
 ```
 
-### 命令执行引擎
-
-```typescript
-class CommandExecutor {
-  private parser: CommandParser;
-  private templateEngine: TemplateEngine;
-
-  async execute(parseResult: ParseResult): Promise<void> {
-    switch (parseResult.type) {
-      case 'command':
-        await this.executeCommand(parseResult);
-        break;
-
-      case 'chat':
-        await this.executeChat(parseResult);
-        break;
-
-      case 'error':
-        this.showError(parseResult.message);
-        break;
-    }
-  }
-
-  private async executeCommand(result: CommandParseResult): Promise<void> {
-    const { command, args, options } = result;
-
-    // 1. 验证参数
-    this.validateArguments(command, args, options);
-
-    // 2. 准备上下文
-    const context = await this.buildContext(command, args, options);
-
-    // 3. 渲染模板
-    const rendered = await this.templateEngine.render(
-      command.template,
-      context
-    );
-
-    // 4. 执行工具调用
-    const toolCalls = this.extractToolCalls(rendered);
-    for (const call of toolCalls) {
-      await this.executeTool(call);
-    }
-
-    // 5. 返回结果
-    this.output(rendered);
-  }
-
-  private async buildContext(
-    command: Command,
-    args: string[],
-    options: Record<string, any>
-  ): Promise<Context> {
-    return {
-      args,
-      options,
-      env: process.env,
-      date: new Date().toISOString(),
-      // 扩展上下文
-      ...await this.loadExtensions(command)
-    };
-  }
-}
-```
+---
 
 ### 模板引擎实现
 
 ```typescript
 class TemplateEngine {
-  async render(template: string, context: Context): Promise<string> {
+  render(template: string, context: Context): string {
     // 1. 解析模板
     const ast = this.parse(template);
-
+    
     // 2. 渲染AST
     return this.renderAST(ast, context);
   }
-
-  private renderAST(ast: ASTNode, context: Context): string {
-    let result = '';
-
-    for (const node of ast.nodes) {
-      switch (node.type) {
-        case 'text':
-          result += node.content;
-          break;
-
-        case 'variable':
-          result += this.evaluateVariable(node.path, context);
-          break;
-
-        case 'if':
-          if (this.evaluateCondition(node.condition, context)) {
-            result += this.renderAST(node.consequent, context);
-          } else if (node.alternate) {
-            result += this.renderAST(node.alternate, context);
-          }
-          break;
-
-        case 'each':
-          const items = this.evaluateVariable(node.collection, context);
-          for (const item of items) {
-            const itemContext = { ...context, [node.item]: item };
-            result += this.renderAST(node.body, itemContext);
-          }
-          break;
-
-        case 'tool-call':
-          const result = await this.executeTool(node.tool, node.args, context);
-          result += result;
-          break;
+  
+  private parse(template: string): ASTNode[] {
+    // 简化的模板解析
+    const nodes: ASTNode[] = [];
+    let pos = 0;
+    
+    while (pos < template.length) {
+      if (template[pos] === '{' && template[pos + 1] === '{') {
+        // 变量插值
+        const end = template.indexOf('}', pos + 2);
+        const expr = template.slice(pos + 2, end);
+        const value = this.evaluateExpression(expr, context);
+        nodes.push({ type: 'text', content: value });
+        pos = end + 1;
+      } else if (template.startsWith('#', pos) && template.includes('\n')) {
+        // 多行注释
+        const end = template.indexOf('\n', pos + 1);
+        nodes.push({ type: 'comment', content: template.substring(1, end) });
+        pos = end + 1;
+      } else {
+        // 普通文本
+        nodes.push({ type: 'text', content: template.substring(pos, pos + 1) });
+        pos = pos + 1;
       }
     }
-
-    return result;
+    
+    return nodes;
   }
-
-  private evaluateVariable(path: string, context: Context): any {
-    const parts = path.split('.');
-    let value = context;
-
+  
+  private evaluateExpression(expr: string, context: Context): string {
+    // 简化的表达式求值
+    const parts = expr.split('.');
+    let value: any = context;
+    
     for (const part of parts) {
-      value = value?.[part];
-    }
-
-    return value;
-  }
-}
-```
-
-### 命令别名系统
-
-```typescript
-class AliasResolver {
-  private aliases: Map<string, string>;
-
-  resolve(input: string): string {
-    // 1. 检查是否是别名
-    const alias = this.aliases.get(input);
-    if (alias) {
-      return this.resolve(alias); // 递归解析
-    }
-
-    return input;
-  }
-
-  register(alias: string, command: string): void {
-    this.aliases.set(alias, command);
-  }
-
-  // 示例别名
-  registerCommonAliases(): void {
-    this.register('/ci', '/commit');
-    this.register('/ps', '/push');
-    this.register('/pr', '/pull-request');
-    this.register('/fix', '/commit --amend');
-  }
-}
-```
-
-### 命令历史管理
-
-```typescript
-class CommandHistory {
-  private history: string[] = [];
-  private index: number = -1;
-  private maxSize: number = 1000;
-
-  add(command: string): void {
-    // 不重复添加
-    if (this.history[this.history.length - 1] !== command) {
-      this.history.push(command);
-    }
-
-    // 限制大小
-    if (this.history.length > this.maxSize) {
-      this.history.shift();
-    }
-
-    this.index = this.history.length;
-  }
-
-  getPrevious(): string | null {
-    if (this.index > 0) {
-      this.index--;
-      return this.history[this.index];
-    }
-    return null;
-  }
-
-  getNext(): string | null {
-    if (this.index < this.history.length - 1) {
-      this.index++;
-      return this.history[this.index];
-    }
-    return null;
-  }
-
-  search(query: string): string[] {
-    return this.history.filter(cmd =>
-      cmd.toLowerCase().includes(query.toLowerCase())
-    );
-  }
-}
-```
-
-### 命令自动补全
-
-```typescript
-class CommandCompleter {
-  async complete(partial: string): Promise<Completion[]> {
-    // 1. 识别补全类型
-    if (partial.startsWith('/')) {
-      return this.completeCommand(partial);
-    }
-
-    return [];
-  }
-
-  private async completeCommand(partial: string): Promise<Completion[]> {
-    const parts = partial.split(/\s+/);
-    const commandName = parts[0];
-    const context = parts.slice(1);
-
-    // 补全命令名
-    if (parts.length === 1) {
-      return this.completeCommandName(commandName);
-    }
-
-    // 补全参数
-    const command = this.findCommand(commandName);
-    if (command) {
-      return this.completeArguments(command, context);
-    }
-
-    return [];
-  }
-
-  private completeCommandName(partial: string): Completion[] {
-    const commands = this.getAllCommands();
-
-    return commands
-      .filter(cmd => cmd.name.startsWith(partial))
-      .map(cmd => ({
-        type: 'command',
-        value: cmd.name,
-        description: cmd.description
-      }));
-  }
-
-  private completeArguments(
-    command: Command,
-    context: string[]
-  ): Completion[] {
-    const completions: Completion[] = [];
-
-    // 选项补全
-    for (const option of command.options) {
-      const flag = `--${option.name}`;
-      if (context.includes(flag)) continue;
-
-      completions.push({
-        type: 'option',
-        value: flag,
-        description: option.description
-      });
-
-      if (option.short) {
-        completions.push({
-          type: 'option',
-          value: `-${option.short}`,
-          description: option.description
-        });
+      if (part === 'args') {
+        value = context.args;
+      } else if (part === 'options') {
+        value = context.options;
+      } else {
+        value = value?.[part] || null;
       }
     }
-
-    // 文件补全
-    if (command.options.some(o => o.type === 'file')) {
-      const files = await this.listFiles('.');
-      completions.push(
-        ...files.map(f => ({
-          type: 'file',
-          value: f,
-          description: 'File'
-        }))
-      );
-    }
-
-    return completions;
-  }
-}
-```
-
-### 命令性能优化
-
-```typescript
-class CommandOptimizer {
-  private cache: Map<string, CachedResult>;
-
-  async execute(
-    command: Command,
-    args: string[],
-    options: Record<string, any>
-  ): Promise<void> {
-    // 1. 检查缓存
-    const cacheKey = this.computeCacheKey(command, args, options);
-    const cached = this.cache.get(cacheKey);
-
-    if (cached && !this.isExpired(cached)) {
-      this.output(cached.result);
-      return;
-    }
-
-    // 2. 执行命令
-    const result = await this.executeUncached(command, args, options);
-
-    // 3. 缓存结果
-    this.cache.set(cacheKey, {
-      result,
-      timestamp: Date.now(),
-      ttl: command.cacheTTL || 60000
-    });
-
-    this.output(result);
-  }
-
-  private computeCacheKey(
-    command: Command,
-    args: string[],
-    options: Record<string, any>
-  ): string {
-    const data = {
-      command: command.name,
-      args,
-      options,
-      // 包含相关文件哈希
-      files: this.getRelevantFileHashes(command)
-    };
-
-    return hash(JSON.stringify(data));
-  }
-
-  private isExpired(cached: CachedResult): boolean {
-    return Date.now() - cached.timestamp > cached.ttl;
-  }
-}
-```
-
-### 命令安全性
-
-```typescript
-class CommandSecurity {
-  validate(command: Command, context: Context): SecurityResult {
-    const issues: SecurityIssue[] = [];
-
-    // 1. 检查权限
-    for (const permission of command.permissions) {
-      if (!this.hasPermission(permission)) {
-        issues.push({
-          type: 'permission_denied',
-          permission
-        });
-      }
-    }
-
-    // 2. 检查危险操作
-    if (this.isDangerousCommand(command)) {
-      issues.push({
-        type: 'dangerous_operation',
-        command: command.name
-      });
-    }
-
-    // 3. 检查参数注入
-    for (const arg of context.args) {
-      if (this.detectInjection(arg)) {
-        issues.push({
-          type: 'injection_attempt',
-          argument: arg
-        });
-      }
-    }
-
-    return {
-      safe: issues.length === 0,
-      issues
-    };
-  }
-
-  private hasPermission(permission: string): boolean {
-    // 检查用户权限
-    return true;
-  }
-
-  private isDangerousCommand(command: Command): boolean {
-    const dangerous = ['rm', 'deploy-prod', 'purge'];
-    return dangerous.includes(command.name);
-  }
-
-  private detectInjection(input: string): boolean {
-    const patterns = [
-      /[;&|`$()]/,  // Shell注入
-      /\.\.[/\\]/, // 路径遍历
-      /<script/i,   // XSS
-      /https?:\/\// // URL注入
-    ];
-
-    return patterns.some(pattern => pattern.test(input));
+    
+    return String(value);
   }
 }
 ```
 
 ---
 
-## 📚 实战案例：开发测试命令
+## 📚 实战案例：高级命令系统
 
-### 需求
+### 案例：智能部署命令
 
-- 📊 运行所有测试
-- 🎯 运行特定测试
-- 🔁 监听模式
-- 📈 生成覆盖率报告
-
-### 实现
-
-#### 1. 命令定义
+创建一个智能部署命令，自动完成构建、测试、部署流程。
 
 ```markdown
+# .claude/commands/deploy.md
 ---
-name: "test"
-description: "Run tests"
-alias: ["/t", "/run-tests"]
+name: "deploy"
+description: "Intelligent deployment command"
 options:
-  - name: "watch"
-    type: "boolean"
-    short: "w"
-    description: "Watch mode"
-  - name: "coverage"
-    type: "boolean"
-    short: "c"
-    description: "Generate coverage report"
-  - name: "pattern"
+  - name: "env"
     type: "string"
-    short: "p"
-    description: "Test pattern"
-permissions:
-  - "bash:run"
+    description: "部署环境"
+    default: "staging"
+    enum: ["staging", "production"]
+  - name: "test"
+    type: "boolean"
+    description: "运行测试"
+    default: true
+  - name: "monitor"
+    type: "boolean"
+    description: "部署后监控"
+    default: true
 ---
 
-运行测试...
+你是一个部署专家。请按照以下流程部署应用：
 
-{{#if options.coverage}}
-生成覆盖率报告...
-{{bash:run npm test -- --coverage}}
+## 前置检查
+1. 检查环境变量：{{env.GITHUB_TOKEN}}
+2. 检查Docker服务状态
+3. 检查数据库连接
+
+## 部署流程
+{{# 1. 构建}
+echo "🏗️ 构建应用..."
+npm run build
+
+# 2. 运行测试
+{{#if options.test}}
+echo "🧪 运行测试..."
+npm test
 {{/if}}
 
-{{#if options.watch}}
-启动监听模式...
-{{bash:run npm test -- --watch}}
+# 3. 部署
+echo "🚀 开始部署..."
+kubectl apply deployment.yaml
+
+# 4. 验证
+echo "🔍 验证部署..."
+kubectl rollout status {{options.env}}
+
+# 5. 监控
+{{#if options.monitor}}
+echo "📊 监控中..."
+kubectl logs -l app={{options.env}}
 {{/if}}
 
-{{#if options.pattern}}
-运行匹配的测试: {{options.pattern}}
-{{bash:run npm test -- --grep "{{options.pattern}}"}}
-{{/if}}
-
-{{#if (and (not options.coverage) (not options.watch) (not options.pattern))}}
-运行所有测试...
-{{bash:run npm test}}
-{{/if}}
+## 完成
+✅ 部署成功！
 ```
 
-#### 2. 使用示例
+**使用示例**：
 
 ```bash
-# 运行所有测试
-claude> /test
+# 部署到staging
+claude> /deploy
 
-# 运行特定测试
-claude> /test --pattern "login"
+# 部署到production并跳过测试
+claude> /deploy --env production --no-test
 
-# 监听模式
-claude> /test --watch
-
-# 生成覆盖率
-claude> /test --coverage
-
-# 组合使用
-claude> /test -w -c
+# 部署并启动监控
+claude> /deploy --env production --monitor
 ```
 
 ---
@@ -941,21 +502,29 @@ claude> /test -w -c
 
 ### 入门级要点
 - ✅ 理解命令的概念
-- ✅ 掌握基本使用方法
-- ✅ 了解常用命令
-
-### 中级要点
-- ✅ 掌握命令定义格式
-- ✅ 理解参数和选项
-- ✅ 掌握模板语法
+- ✅ 掌握命令的基本用法
+- ✅ 了解参数和选项
 - ✅ 学会创建自定义命令
 
+### 中级要点
+- ✅ 掌握命令格式结构
+- 理解参数和选项处理
+- 理解模板语法
+- 学会创建复杂命令
+
 ### 专家级要点
-- ✅ 深入解析器实现
-- ✅ 掌握执行引擎
-- ✅ 理解模板引擎
-- ✅ 掌握性能优化
-- ✅ 了解安全机制
+- ✅ 深入命令解析算法
+- 掌握模板引擎实现
+- 理解命令执行引擎
+- 掌握错误处理机制
+
+### 📊 相关图表
+
+- 🔍 **命令解析流程图**：展示用户输入→解析→执行的完整流程
+- ⏱️ **命令执行时序图**：展示用户→CLI→Command→Tool→Claude的交互过程
+- 🎛 **命令解析流程图**：展示命令类型、参数、选项的路由流程
+
+**详细图表**：[📊 可视化图表集](./VISUAL_GUIDE.md#命令系统)
 
 ---
 

@@ -2,103 +2,326 @@
 
 ## 📋 模块介绍
 
-代理系统是 Claude Code 的核心AI能力扩展机制，通过专业化代理完成特定任务。本章将深入讲解代理的设计、协作和开发方法。
+代理系统是 Claude Code 的"专家团队"概念，通过专业化AI助手完成特定任务。每个代理都有专长领域。本章将通过大量实例和图表，深入讲解代理的设计、协作和管理。
 
 ---
 
 ## 🟢 入门级：代理基础认知
 
-### 什么是代理？
+### 🤔 什么是代理？
 
-代理（Agent）是**专业化AI助手**，每个代理都有明确的职责和能力范围。
+#### 简单理解
+
+**代理（Agent）就像你的"专业团队"**，每个代理都是一个"专家"，负责特定领域的工作。
 
 **类比理解**：
-- 👥 像团队中的专家（前端、后端、测试）
-- 🎯 像工厂的专门工种（设计、生产、质检）
-- 🏥 像医院的专科医生（外科、内科、眼科）
 
-### 为什么需要代理？
+```
+传统方式（通用Claude）：
+你：帮我做A、B、C三件事
+Claude：我来做A、B、C
 
-```bash
-# 通用Claude（什么都能做）
-claude> 帮我审查代码、写测试、部署应用
-
-问题：可能不够专业，遗漏细节
-
-# 使用多个代理
-claude> /code-review    # 代码审查代理
-claude> /test-writer    # 测试编写代理
-claude> /deploy         # 部署代理
-
-优势：每个代理都是专家，质量更高
+使用代理（专业化）：
+你：帮我做开发任务
+Claude：@backend-developer 负责后端
+Claude：@frontend-developer 负责前端
+Claude：@test-engineer 写测试
+Claude：@code-reviewer 审查代码
 ```
 
-**代理的优势**：
-- 🎯 **专业化** - 每个代理专注一个领域
+**核心优势：**
+- 🎯 **专业化** - 每个代理专注于特定领域
 - 🧠 **深度理解** - 针对性训练和配置
-- 🔁 **可复用** - 多次使用保持一致性
-- 🤝 **可协作** - 多个代理协同工作
+- 🔁 **质量高** - 专业的问题检查和建议
+- 🤝 **协作** - 多个代理分工协作
 
-### 官方代理示例
+---
 
-| 代理 | 职责 | 能力 |
+### 🎯 代理 vs 其他概念
+
+#### 代理 vs 命令
+
+| 特性 | 代理 | 命令 |
 |------|------|------|
-| **code-reviewer** | 代码审查 | 检查质量、安全、最佳实践 |
-| **test-engineer** | 测试工程师 | 编写测试、提高覆盖率 |
-| **security-auditor** | 安全审计 | 发现漏洞、风险评估 |
-| **documentation-writer** | 文档编写 | 生成文档、API参考 |
-| **api-designer** | API设计 | 设计RESTful API、接口规范 |
+| 触发方式 | 自动委派 | 手动输入 |
+| 智能程度 | 高（AI决策） | 低（预设流程） |
+| 复杂度 | 高（处理复杂任务） | 低（简单操作） |
+| 实时性 | 实时反馈 | 一次性执行 |
+| 示例 | @code-reviewer | /commit |
 
-### 代理 vs 命令 vs 插件
-
-| 特性 | 命令 | 代理 | 插件 |
-|------|------|------|------|
-| **触发方式** | 手动输入 | 自动委派 | 安装启用 |
-| **职责** | 执行特定操作 | 完成复杂任务 | 提供功能包 |
-| **智能程度** | 低（预设流程） | 高（AI决策） | 中 |
-| **复用性** | 高 | 高 | 极高 |
-| **示例** | `/commit` | code-reviewer | code-review插件 |
-
-### 如何使用代理？
-
-#### 1. 自动委派
+**实际对比：**
 
 ```bash
-$ claude
-claude> 审查这个文件的代码质量
+# 使用命令
+claude> /review
+结果：直接执行预定义流程
+
+# 使用代理
+claude> 审查这个文件的质量
+Claude: 自动调用 @code-reviewer 代理进行深度分析
+结果：更专业的审查报告
+```
+
+#### 代理 vs 技能
+
+| 特性 | 代理 | 技能 |
+|------|------|------|
+| 触发方式 | 自动委派 | 自动触发 |
+| 智能程度 | 高（理解+决策） | 低（预设规则） |
+| 复杂度 | 中高（处理复杂场景） | 低（单一功能） |
+| 协作能力 | 能委派其他代理 | 不能 |
+| 示例 | @code-reviewer | code-review |
+
+**实际对比：**
+
+```bash
+# 使用技能
+claude> 帮我格式化代码
+Claude: 自动触发 code-formatter 技能
+
+# 使用代理
+claude> 审查这个文件的代码
+Claude: 自动委派 @code-reviewer 代理，可以深入分析
+```
+
+---
+
+### 🌟 官方代理示例
+
+#### 1️⃣ code-reviewer（代码审查员）
+
+**职责**：审查代码质量、安全性和最佳实践
+
+**能力**：
+- 代码风格检查
+- 性能优化建议
+- 安全漏洞检测
+- 最佳实践建议
+- 正面评价
+
+**使用方式**：
+```bash
+claude> 审查 src/main.py
 
 # Claude自动选择code-reviewer代理
-🔍 Code Reviewer 代理已激活
-正在分析代码...
 ```
 
-#### 2. 手动指定
+#### 2️⃣ test-engineer（测试工程师）
 
+**职责**：编写测试、提高覆盖率
+
+**能力**：
+- 单元测试
+- 集成测试
+- 测试覆盖率分析
+- 性能测试
+- Mock数据生成
+
+**使用方式**：
 ```bash
-claude> @code-reviewer 审查src/main.py
-
-# 明确指定使用code-reviewer代理
+claude> 为这个函数编写测试
+# Claude自动选择test-engineer代理
 ```
 
-#### 3. 多代理协作
+#### 3️⃣ documentation-writer（文档编写者）
 
+**职责**：生成技术文档
+
+**能力**：
+- API文档
+- 代码注释
+- README编写
+- Wiki文档
+
+**使用方式**：
 ```bash
-claude> 完成这个功能开发
+claude> 生成API文档
+# Claude自动使用documentation-writer技能
+```
 
-# Claude自动协调多个代理
-1. @code-architect - 设计架构
-2. @implementation-agent - 实现代码
-3. @test-engineer - 编写测试
-4. @code-reviewer - 审查代码
+#### 4️⃣ api-designer（API设计师）
+
+**职责**：设计API接口
+
+**能力**：
+- RESTful设计
+- OpenAPI规范
+- 接口文档生成
+
+**使用方式**：
+```bash
+claude> 设计用户认证API
+# Claude自动使用api-designer代理
+```
+
+#### 5️⃣ security-auditor（安全审计员）
+
+**职责**：安全检查和风险评估
+
+**能力**：
+- SQL注入检测
+- XSS漏洞
+- 权限验证
+- 敏感信息检查
+
+**使用方式**：
+```bash
+claude> 检查代码安全性
+# Claude自动使用security-auditor代理
+```
+
+---
+
+### 🤝 代理协作模式
+
+#### 串行协作
+
+```mermaid
+graph LR
+    A[用户任务] --> B[@code-architect: 设计架构]
+    B --> C[@implementation-agent: 实现代码]
+    C --> D[@test-engineer: 编写测试]
+    D --> E[@code-reviewer: 审查代码]
+    E --> F[返回结果]
+```
+
+**示例**：
+```bash
+claude> 开发用户认证功能
+
+# 串行执行：
+1. 设计架构（架构师）
+2. 实现代码（实现者）
+3. 编写测试（测试员）
+4. 审查代码（审查员）
+```
+
+#### 并行协作
+
+```mermaid
+graph TD
+    A[用户任务] --> B[@code-reviewer: 代码质量]
+    A --> C[@security-auditor: 安全检查]
+    A --> D[@performance-analyst: 性能分析]
+    A --> E[@documentation-writer: 文档编写]
+    
+    B --> F{质量检查}
+    C --> G{安全检查}
+    D --> H{性能分析}
+    E --> I{文档编写}
+    
+    F --> J[汇总质量检查结果]
+    G --> J
+    H --> J
+    I --> J
+    H --> J
+    I --> J
+    
+    J --> K[返回完整报告]
+```
+
+**示例**：
+```bash
+claude> 审查代码质量和安全性
+
+# 并行执行：
+1. @code-reviewer 检查代码质量
+2. @security-auditor 检查安全性
+3. @performance-analyst 分析性能
+4. @documentation-writer 生成文档
+
+# 三个代理并行执行，最后汇总结果
+```
+
+#### 主从协作
+
+```mermaid
+graph TD
+    A[用户任务] --> B[@orchestrator: 协调器]
+    B --> C[@frontend-dev: 前端开发]
+    B --> D[@backend-dev: 后端开发]
+    B --> E[@test-engineer: 测试工程师]
+    B --> F[@reviewer: 审查]
+    
+    C --> G[前端实现]
+    D --> H[后端实现]
+    E --> I[测试代码]
+    F --> J[代码审查]
+    
+    G --> K[检查前端]
+    H --> K
+    I --> K
+    J --> K
+    J --> K
+    
+    K --> L[返回结果]
+    B --> L
+```
+
+**示例**：
+```bash
+claude> 完成新功能
+
+# 协调器协调：
+1. @frontend-dev 开发前端
+2. @backend-dev 开发后端
+3. @test-engineer 编写测试
+4. @reviewer 审查代码
+5. 协调器汇总结果
 ```
 
 ---
 
 ## 🟡 中级：代理开发与协作
 
-### 代理定义格式
+### 📝 代理定义格式
 
-代理使用结构化Markdown定义：
+```markdown
+---
+id: "代理ID"
+name: "代理名称"
+role: "代理角色"
+description: "代理描述"
+version: "版本号"
+permissions:
+  - "file:read"
+  - "git:diff"
+  - "file:write"
+capabilities:
+  - "能力1"
+  - "能力2"
+  - "能力3"
+tools:
+  - "file:read"
+  - "file:write"
+  - "git:diff"
+  - "git:log"
+---
+
+你是[详细描述]
+
+## 职责
+- [职责1]
+- [职责2]
+- [职责3]
+
+## 审查标准
+- [标准1]
+- [标准2]
+- [标准3]
+
+## 输出格式
+[输出格式]
+```
+
+## 注意事项
+- [注意1]
+- [注意2]
+```
+
+---
+
+**实际示例**：
 
 ```markdown
 ---
@@ -109,8 +332,8 @@ description: "Specialized agent for code review"
 version: "1.0.0"
 permissions:
   - "file:read"
-  - "git:read"
   - "git:diff"
+  - "git:log"
 capabilities:
   - "code-quality-check"
   - "security-audit"
@@ -135,779 +358,35 @@ tools:
 - 性能优化
 - 错误处理
 - 命名规范
+- 文档注释
 
 ### 安全性
-- SQL注入
+- SQL注入风险
 - XSS漏洞
 - 权限验证
-- 敏感数据
+- 敏感信息
 
 ### 最佳实践
 - 设计模式
 - 代码复用
 - 注释文档
 - 测试覆盖
-
-## 工作流程
-
-1. **分析变更**
-   - 查看git diff
-   - 理解代码意图
-   - 识别影响范围
-
-2. **检查问题**
-   - 静态分析
-   - 安全扫描
-   - 性能评估
-
-3. **生成报告**
-   - 列出问题
-   - 提供建议
-   - 优先级排序
-
-4. **验证修复**
-   - 检查修复方案
-   - 确认解决
-   - 更新报告
-
-## 输出格式
-
-```markdown
-## 代码审查报告
-
-### 📊 概览
-- 文件：{{file}}
-- 变更行数：{{linesChanged}}
-- 发现问题：{{issueCount}}个
-
-### 🔍 发现的问题
-
-#### 🔴 严重问题
-{{#each criticalIssues}}
-1. **{{title}}**
-   - 位置：`{{location}}`
-   - 描述：{{description}}
-   - 修复：{{suggestion}}
-{{/each}}
-
-#### 🟡 一般问题
-{{#each normalIssues}}
-1. **{{title}}**
-   - 位置：`{{location}}`
-   - 描述：{{description}}
-   - 修复：{{suggestion}}
-{{/each}}
-
-### ✅ 做得好的地方
-- {{goodPoint1}}
-- {{goodPoint2}}
-
-### 📈 综合评分
-- 代码质量：{{qualityScore}}/10
-- 安全性：{{securityScore}}/10
-- 可维护性：{{maintainabilityScore}}/10
-```
-
-## 注意事项
-- 保持客观和专业
-- 提供具体的改进建议
-- 鼓励好的实践
-- 解释问题的原因
-```
-
-### 代理Frontmatter字段详解
-
-| 字段 | 类型 | 必需 | 说明 |
-|------|------|------|------|
-| `id` | string | ✅ | 代理唯一标识 |
-| `name` | string | ✅ | 代理显示名称 |
-| `role` | string | ✅ | 代理角色 |
-| `description` | string | ✅ | 代理描述 |
-| `permissions` | string[] | ✅ | 需要的权限 |
-| `capabilities` | string[] | ✅ | 能力列表 |
-| `tools` | string[] | ✅ | 可用工具 |
-| `version` | string | ❌ | 版本号 |
-| `model` | string | ❌ | 使用的AI模型 |
-
-### 创建自定义代理
-
-#### 步骤1：创建代理文件
-
-```bash
-mkdir -p .claude/agents
-```
-
-#### 步骤2：编写代理
-
-创建 `.claude/agents/python-expert.md`：
-
-```markdown
----
-id: "python-expert"
-name: "Python Expert"
-role: "Python Development Specialist"
-description: "Expert in Python development, best practices, and optimization"
-permissions:
-  - "file:read"
-  - "file:write"
-  - "bash:run"
-capabilities:
-  - "python-code-review"
-  - "performance-optimization"
-  - "code-refactoring"
-tools:
-  - "file:read"
-  - "file:write"
-  - "bash:run"
----
-
-你是Python开发专家。
-
-## 专长
-- Python 3.8+ 最佳实践
-- PEP 8 代码规范
-- 性能优化
-- 异步编程
-- 类型注解
-
-## 审查要点
-
-### 代码风格
-- 遵循PEP 8
-- 使用类型注解
-- 适当的注释
-- 命名约定
-
-### 性能
-- 避免不必要的循环
-- 使用生成器
-- 合理使用缓存
-- 异步操作
-
-### 安全
-- 输入验证
-- SQL注入防护
-- 敏感数据处理
-- 依赖管理
-
-## 帮助用户
-1. 识别Python特定问题
-2. 提供最佳实践建议
-3. 优化性能
-4. 修复常见错误
-```
-
-#### 步骤3：测试代理
-
-```bash
-$ claude
-claude> 审查这个Python文件
-
-# Python Expert 代理自动激活
-🐍 Python Expert 已激活
-
-正在分析 main.py...
-
-发现以下问题：
-
-1. ❌ 未使用类型注解
-   位置：main.py:10
-   建议：添加参数类型和返回值类型
-
-2. ⚠️ 使用了不必要的列表推导
-   位置：main.py:25
-   建议：使用生成器表达式
-
-3. ✅ 异常处理很好
-   位置：main.py:40
-```
-
-### 代理协作机制
-
-#### 1. 串行协作
-
-```markdown
-# 场景：功能开发
-任务流：设计 → 实现 → 测试 → 审查
-
-代理链：
-1. @code-architect
-   - 设计架构
-   - 定义接口
-
-2. @implementation-agent
-   - 实现代码
-   - 编写文档
-
-3. @test-engineer
-   - 编写测试
-   - 提高覆盖率
-
-4. @code-reviewer
-   - 审查代码
-   - 提出改进
-```
-
-#### 2. 并行协作
-
-```markdown
-# 场景：代码审查
-多个代理同时审查不同方面
-
-代理组：
-1. @code-reviewer
-   - 代码质量
-
-2. @security-auditor
-   - 安全漏洞
-
-3. @performance-analyst
-   - 性能问题
-
-4. @documentation-checker
-   - 文档完整性
-
-并行执行 → 汇总结果 → 生成报告
-```
-
-#### 3. 主从协作
-
-```markdown
-# 场景：复杂任务
-主代理协调，从代理执行
-
-@orchestrator (主代理)
-  ↓
-  ├─ @frontend-developer (开发前端)
-  ├─ @backend-developer (开发后端)
-  └─ @test-engineer (编写测试)
-
-主代理负责：
-- 任务分解
-- 协调进度
-- 汇总结果
-- 质量把控
 ```
 
 ---
 
-## 🔴 专家级：代理系统深度剖析
-
-### 代理注册系统
-
-```typescript
-class AgentRegistry {
-  private agents: Map<string, Agent>;
-  private capabilities: Map<string, Agent[]>;
-
-  register(agent: Agent): void {
-    // 注册代理
-    this.agents.set(agent.id, agent);
-
-    // 索引能力
-    for (const capability of agent.capabilities) {
-      if (!this.capabilities.has(capability)) {
-        this.capabilities.set(capability, []);
-      }
-      this.capabilities.get(capability)!.push(agent);
-    }
-  }
-
-  findAgent(id: string): Agent | null {
-    return this.agents.get(id) || null;
-  }
-
-  findByCapability(capability: string): Agent[] {
-    return this.capabilities.get(capability) || [];
-  }
-
-  findBestAgent(task: Task): Agent | null {
-    // 1. 分析任务需求
-    const requiredCapabilities = this.analyzeCapabilities(task);
-
-    // 2. 查找匹配的代理
-    const candidates: Agent[] = [];
-    for (const capability of requiredCapabilities) {
-      const agents = this.findByCapability(capability);
-      candidates.push(...agents);
-    }
-
-    // 3. 评分排序
-    const scored = candidates.map(agent => ({
-      agent,
-      score: this.score(agent, task)
-    }));
-
-    scored.sort((a, b) => b.score - a.score);
-
-    // 4. 返回最佳代理
-    return scored[0]?.agent || null;
-  }
-
-  private score(agent: Agent, task: Task): number {
-    let score = 0;
-
-    // 能力匹配度
-    const matched = agent.capabilities.filter(c =>
-      task.requiredCapabilities.includes(c)
-    ).length;
-    score += (matched / agent.capabilities.length) * 40;
-
-    // 历史成功率
-    score += agent.stats.successRate * 30;
-
-    // 任务复杂度匹配
-    if (agent.maxComplexity >= task.complexity) {
-      score += 20;
-    }
-
-    // 优先级
-    score += agent.priority * 10;
-
-    return score;
-  }
-}
-```
-
-### 代理调度器
-
-```typescript
-class AgentScheduler {
-  private queue: TaskQueue;
-  private workers: Map<string, AgentWorker>;
-
-  async schedule(task: Task): Promise<void> {
-    // 1. 查找最佳代理
-    const agent = this.registry.findBestAgent(task);
-    if (!agent) {
-      throw new Error('No suitable agent found');
-    }
-
-    // 2. 创建worker
-    const worker = await this.createWorker(agent);
-
-    // 3. 加入队列
-    await this.queue.enqueue(task, agent);
-
-    // 4. 分配worker
-    await this.assignWorker(task, worker);
-  }
-
-  private async createWorker(agent: Agent): Promise<AgentWorker> {
-    // 1. 初始化上下文
-    const context = await this.initializeContext(agent);
-
-    // 2. 创建worker
-    const worker = new AgentWorker({
-      agent,
-      context,
-      tools: this.getTools(agent)
-    });
-
-    // 3. 启动worker
-    await worker.start();
-
-    return worker;
-  }
-
-  private async initializeContext(agent: Agent): Promise<AgentContext> {
-    return {
-      id: generateId(),
-      agentId: agent.id,
-      state: {},
-      history: [],
-      permissions: agent.permissions,
-      tools: agent.tools
-    };
-  }
-}
-```
-
-### 代理通信
-
-```typescript
-class AgentMessenger {
-  private channels: Map<string, MessageChannel>;
-
-  async send(
-    from: string,
-    to: string,
-    message: AgentMessage
-  ): Promise<void> {
-    const channel = this.channels.get(to);
-
-    if (!channel) {
-      throw new Error('Agent not found: ' + to);
-    }
-
-    // 验证权限
-    if (!this.canSend(from, to)) {
-      throw new Error('Permission denied');
-    }
-
-    // 发送消息
-    await channel.send(message);
-
-    // 记录日志
-    this.log({
-      from,
-      to,
-      message,
-      timestamp: Date.now()
-    });
-  }
-
-  async broadcast(
-    from: string,
-    message: AgentMessage
-  ): Promise<void> {
-    const agents = this.registry.getAllAgents();
-
-    const promises = agents
-      .filter(agent => agent.id !== from)
-      .map(agent => this.send(from, agent.id, message));
-
-    await Promise.all(promises);
-  }
-
-  subscribe(
-    agentId: string,
-    handler: MessageHandler
-  ): void {
-    const channel = this.channels.get(agentId);
-    if (channel) {
-      channel.subscribe(handler);
-    }
-  }
-}
-```
-
-### 代理状态管理
-
-```typescript
-class AgentStateManager {
-  private states: Map<string, AgentState>;
-
-  async getState(agentId: string): Promise<AgentState> {
-    return this.states.get(agentId) || this.createInitialState(agentId);
-  }
-
-  async updateState(
-    agentId: string,
-    update: Partial<AgentState>
-  ): Promise<void> {
-    const state = await this.getState(agentId);
-    const updated = { ...state, ...update };
-
-    this.states.set(agentId, updated);
-
-    // 持久化
-    await this.persist(agentId, updated);
-  }
-
-  async resetState(agentId: string): Promise<void> {
-    const state = this.createInitialState(agentId);
-    this.states.set(agentId, state);
-    await this.persist(agentId, state);
-  }
-
-  private createInitialState(agentId: string): AgentState {
-    return {
-      agentId,
-      status: 'idle',
-      tasks: [],
-      stats: {
-        tasksCompleted: 0,
-        tasksFailed: 0,
-        avgDuration: 0,
-        successRate: 1.0
-      },
-      lastActivity: Date.now()
-    };
-  }
-
-  private async persist(
-    agentId: string,
-    state: AgentState
-  ): Promise<void> {
-    // 持久化到数据库或文件
-    const path = path.join(
-      this.stateDir,
-      `${agentId}.json`
-    );
-    await fs.writeFile(path, JSON.stringify(state));
-  }
-}
-```
-
-### 代理性能监控
-
-```typescript
-class AgentMonitor {
-  private metrics: Map<string, AgentMetrics>;
-
-  async recordExecution(
-    agentId: string,
-    task: Task,
-    result: ExecutionResult
-  ): Promise<void> {
-    const metrics = await this.getMetrics(agentId);
-
-    // 记录执行
-    metrics.executions.push({
-      taskId: task.id,
-      duration: result.duration,
-      success: result.success,
-      timestamp: Date.now()
-    });
-
-    // 更新统计
-    metrics.totalExecutions++;
-    if (result.success) {
-      metrics.successfulExecutions++;
-    } else {
-      metrics.failedExecutions++;
-    }
-
-    // 计算成功率
-    metrics.successRate =
-      metrics.successfulExecutions / metrics.totalExecutions;
-
-    // 计算平均时长
-    const durations = metrics.executions
-      .filter(e => e.success)
-      .map(e => e.duration);
-    metrics.avgDuration =
-      durations.reduce((a, b) => a + b, 0) / durations.length;
-
-    await this.saveMetrics(agentId, metrics);
-  }
-
-  async getPerformanceReport(
-    agentId: string
-  ): Promise<PerformanceReport> {
-    const metrics = await this.getMetrics(agentId);
-
-    return {
-      agentId,
-      totalExecutions: metrics.totalExecutions,
-      successRate: metrics.successRate,
-      avgDuration: metrics.avgDuration,
-      topTasks: this.getTopTasks(metrics),
-      commonErrors: this.getCommonErrors(metrics),
-      recommendations: this.generateRecommendations(metrics)
-    };
-  }
-
-  private generateRecommendations(
-    metrics: AgentMetrics
-  ): string[] {
-    const recommendations: string[] = [];
-
-    if (metrics.successRate < 0.8) {
-      recommendations.push('成功率较低，建议检查错误处理逻辑');
-    }
-
-    if (metrics.avgDuration > 30000) {
-      recommendations.push('平均执行时间较长，建议优化性能');
-    }
-
-    const errors = this.getCommonErrors(metrics);
-    if (errors.length > 0) {
-      recommendations.push(
-        `常见错误：${errors[0].error} (出现${errors[0].count}次)`
-      );
-    }
-
-    return recommendations;
-  }
-}
-```
-
-### 代理安全机制
-
-```typescript
-class AgentSecurity {
-  private permissions: Map<string, Permission[]>;
-
-  async checkPermission(
-    agentId: string,
-    action: string,
-    resource: string
-  ): Promise<boolean> {
-    const permissions = this.permissions.get(agentId) || [];
-
-    for (const permission of permissions) {
-      if (permission.action === action) {
-        return this.checkResourcePermission(
-          permission,
-          resource
-        );
-      }
-    }
-
-    return false;
-  }
-
-  private checkResourcePermission(
-    permission: Permission,
-    resource: string
-  ): boolean {
-    // 检查资源策略
-    for (const policy of permission.resourcePolicies) {
-      if (this.matchResource(policy.pattern, resource)) {
-        return policy.allow;
-      }
-    }
-
-    return permission.defaultAllow;
-  }
-
-  async auditAccess(
-    agentId: string,
-    action: string,
-    resource: string
-  ): Promise<void> {
-    // 记录访问审计
-    const auditLog = {
-      agentId,
-      action,
-      resource,
-      timestamp: Date.now(),
-      result: await this.checkPermission(agentId, action, resource)
-    };
-
-    await this.logAudit(auditLog);
-  }
-
-  async detectAnomalies(agentId: string): Promise<Anomaly[]> {
-    const logs = await this.getAuditLogs(agentId);
-    const anomalies: Anomaly[] = [];
-
-    // 检测异常访问频率
-    const recentLogs = logs.filter(log =>
-      Date.now() - log.timestamp < 60000
-    );
-    if (recentLogs.length > 1000) {
-      anomalies.push({
-        type: 'high_frequency',
-        severity: 'warning',
-        message: '访问频率异常高'
-      });
-    }
-
-    // 检测权限提升尝试
-    const deniedLogs = logs.filter(log => !log.result);
-    if (deniedLogs.length > 10) {
-      anomalies.push({
-        type: 'permission_denied',
-        severity: 'critical',
-        message: '频繁的权限拒绝'
-      });
-    }
-
-    return anomalies;
-  }
-}
-```
-
----
-
-## 📚 实战案例：开发多代理协作系统
-
-### 需求：代码发布流程
-
-```markdown
-场景：发布新版本到生产环境
-
-需要多个代理协作：
-1. @code-reviewer - 审查代码
-2. @test-runner - 运行测试
-3. @security-scanner - 安全扫描
-4. @documentation-updater - 更新文档
-5. @deployment-agent - 部署到生产
-```
-
-### 实现
-
-#### 1. 协调代理
-
-```markdown
----
-id: "release-coordinator"
-name: "Release Coordinator"
-role: "Release Orchestration"
-description: "Coordinate release process with multiple agents"
-permissions:
-  - "agent:invoke"
-capabilities:
-  - "release-orchestration"
-  - "task-coordination"
----
-
-你是发布协调员。
-
-## 职责
-- 协调发布流程
-- 管理代理协作
-- 监控发布进度
-- 处理异常情况
-
-## 发布流程
-
-### 阶段1：准备
-1. 调用 @code-reviewer 审查代码
-2. 调用 @test-runner 运行测试
-3. 调用 @security-scanner 安全扫描
-
-### 阶段2：验证
-- 确认所有检查通过
-- 准备发布说明
-- 更新文档
-
-### 阶段3：部署
-1. 调用 @deployment-agent 部署
-2. 监控部署状态
-3. 验证部署结果
-
-### 阶段4：发布后
-- 更新版本信息
-- 通知团队
-- 监控线上状态
-```
-
-#### 2. 使用流程
-
-```bash
-$ claude
-claude> 发布 v1.0.0 到生产环境
-
-🚀 Release Coordinator 已激活
-
-### 阶段1：代码审查
-📋 调用 code-reviewer...
-✅ 代码审查通过
-
-### 阶段2：测试
-🧪 调用 test-runner...
-✅ 所有测试通过
-
-### 阶段3：安全扫描
-🔒 调用 security-scanner...
-✅ 未发现安全漏洞
-
-### 阶段4：更新文档
-📝 调用 documentation-updater...
-✅ 文档已更新
-
-### 阶段5：部署
-🚀 调用 deployment-agent...
-✅ 部署成功
-
-### 发布完成！
-版本：v1.0.0
-时间：2026-04-14 12:00:00
-状态：✅ 成功
+### 实战应用
+
+#### 使用场景
+用户：
+> 审查 src/main.py
+
+Claude 自动：
+1. 读取文件内容
+2. 分析代码质量
+3. 检查安全性
+4. 生成审查报告
+5. 提供改进建议
 ```
 
 ---
@@ -915,21 +394,29 @@ claude> 发布 v1.0.0 到生产环境
 ## ✅ 章节总结
 
 ### 入门级要点
-- ✅ 理解代理的概念
-- ✅ 掌握基本使用方法
+- ✅ 理解代理的概念和优势
+- ✅ 掌握代理的基本使用方法
 - ✅ 了解官方代理示例
 
 ### 中级要点
 - ✅ 掌握代理定义格式
-- ✅ 理解代理协作机制
+- ✅ 理解代理协作模式
 - ✅ 学会创建自定义代理
-- ✅ 掌握主从、串行、并行协作
+- ✅ 掌握能力定义方法
 
 ### 专家级要点
 - ✅ 深入代理注册系统
-- ✅ 掌握调度和通信机制
-- ✅ 理解状态管理和监控
-- ✅ 掌握安全机制
+- 掌握代理委派机制
+- 理解性能监控
+- 掌握安全策略
+- 理解协作编排
+
+### 📊 相关图表
+- **代理协作流程图**：串行、并行、主从三种模式
+- **代理委派决策图**：选择合适代理的过程
+- **代理评分算法图**：代理评分和选择算法
+
+**详细图表**：[📊 可视化图表集](./VISUAL_GUIDE.md#代理系统)
 
 ---
 
