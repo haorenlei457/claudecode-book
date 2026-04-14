@@ -17,6 +17,7 @@
 - [Git集成](#git集成)
 - [终端交互](#终端交互)
 - [安全机制](#安全机制)
+- [大模型选择](#大模型选择)
 
 ---
 
@@ -908,6 +909,95 @@ graph TD
 
 ---
 
+## 大模型选择
+
+### 模型选择流程图
+
+```mermaid
+graph TD
+    A[开始选择模型] --> B{任务类型?}
+    B -->|简单任务| C{预算敏感?}
+    B -->|中等任务| D{注重性价比?}
+    B -->|复杂任务| E{需要最强能力?}
+    
+    C -->|是| F[选择Haiku]
+    C -->|否| G[选择Sonnet]
+    
+    D -->|是| H[选择3.5 Sonnet]
+    D -->|否| I[选择Opus]
+    
+    E -->|是| J[选择3.5 Opus]
+    E -->|否| K[选择Opus]
+    
+    style A fill:#90CAF9
+    style C fill:#82C4D6
+    style F fill:#74B7C3
+    style H fill:#66AAAF
+    style J fill:#588DA8
+```
+
+### 模型适用场景对比
+
+```mermaid
+graph LR
+    A[模型选择] --> B[Haiku]
+    A --> C[Sonnet]
+    A --> D[Opus]
+    A --> E[3.5 Sonnet]
+    A --> F[3.5 Opus]
+    
+    B --> G[简单任务<br/>批量处理<br/>实时交互]
+    C --> H[日常开发<br/>代码审查<br/>文档生成]
+    D --> I[架构设计<br/>安全审计<br/>复杂算法]
+    E --> J[多模态任务<br/>高性能需求<br/>新一代特性]
+    F --> K[最高难度<br/>企业级架构<br/>研究创新]
+    
+    style A fill:#90CAF9
+    style B fill:#82C4D6
+    style C fill:#74B7C3
+    style D fill:#66AAAF
+    style E fill:#588DA8
+    style F fill:#FFC24C
+    style G fill:#82C4D6
+    style H fill:#74B7C3
+    style I fill:#66AAAF
+    style J fill:#588DA8
+    style K fill:#FFC24C
+```
+
+### 成本-性能权衡
+
+```mermaid
+graph TD
+    A[成本-性能矩阵] --> B{预算}
+    B -->|低| C{任务复杂度}
+    B -->|中| D{任务复杂度}
+    B -->|高| E{任务复杂度}
+    
+    C -->|低| F[Haiku → 成本最优]
+    C -->|中| G[Haiku → 可能不足]
+    C -->|高| H[Haiku → 错误率高]
+    
+    D -->|低| I[Sonnet → 性价比高]
+    D -->|中| J[Sonnet → 最佳选择]
+    D -->|高| K[Sonnet → 足够]
+    
+    E -->|低| L[Opus → 性能过剩]
+    E -->|中| M[Opus → 质量高]
+    E -->|高| N[Opus/3.5 Opus → 最佳质量]
+    
+    style A fill:#90CAF9
+    style B fill:#82C4D6
+    style C fill:#74B7C3
+    style D fill:#66AAAF
+    style E fill:#588DA8
+    style F fill:#82C4D6
+    style J fill:#74B7C3
+    style N fill:#FFC24C
+```
+
+---
+
 ## 使用说明
 
 ### 如何使用这些图表
@@ -939,6 +1029,7 @@ graph TD
 | Git集成 | 3 | 工作流、PR创建、智能提交 |
 | 终端交互 | 2 | 开发工作流、日志分析 |
 | 安全机制 | 3 | 安全架构、权限验证、监控系统 |
+| 大模型选择 | 3 | 选择流程、场景对比、成本权衡 |
 
 ---
 

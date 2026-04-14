@@ -1,11 +1,11 @@
 # Claude Code 教程
 
-> 🎯 **最全面的Claude Code学习资源** - 从入门到精通，包含12个核心模块 + 13个官方插件详解
+> 🎯 **最全面的Claude Code学习资源** - 从入门到精通，包含14个完整模块 + 13个官方插件详解
 
 ![GitHub stars](https://img.shields.io/github/stars/haorenlei457/claudecode-book?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/haorenlei457/claudecode-book?style=social)
 ![License](https://img.shields.io/github/license/haorenlei457/claudecode-book)
-![Total Lines](https://img.shields.io/badge/Total%20Lines-12,000+-blue)
+![Total Lines](https://img.shields.io/badge/Total%20Lines-14,000+-blue)
 
 ## 📚 教程概览
 
@@ -13,8 +13,8 @@
 
 ### 🎯 教程特点
 
-- 📖 **详细** - 180,000字，12个核心模块 + 官方插件详解
-- 🎨 **图文并茂** - 20+个Mermaid流程图和架构图
+- 📖 **详细** - 200,000+字，14个完整模块（12核心 + 1插件 + 1模型）
+- 🎨 **图文并茂** - 25+个Mermaid流程图和架构图
 - 💻 **代码丰富** - 300+个可运行的代码示例
 - 🚀 **实战导向** - 12个完整的实战项目案例
 - 📊 **结构清晰** - 三层难度系统（入门/中级/专家）
@@ -23,16 +23,18 @@
 
 ```mermaid
 graph LR
-    A[准备阶段<br/>环境搭建] --> B[基础阶段<br/>核心模块]
+    A[准备阶段<br/>环境搭建] --> B[基础阶段<br/>核心模块(01-12)]
     B --> C[进阶阶段<br/>插件系统]
-    C --> D[高级阶段<br/>官方插件]
-    D --> E[实践阶段<br/>实战项目]
+    C --> D[高级阶段<br/>官方插件(13)]
+    D --> E[模型选择<br/>配置指南(14)]
+    E --> F[实践阶段<br/>实战项目]
     
     style A fill:#90CAF9
     style B fill:#82C4D6
     style C fill:#74B7C3
     style D fill:#66AAAF
     style E fill:#588DA8
+    style F fill:#FFC24C
 ```
 
 ---
@@ -55,10 +57,12 @@ graph LR
 | 10 | [Git集成](./10-git-integration.md) | ⭐⭐⭐ | 45min |
 | 11 | [终端交互](./11-terminal-interaction.md) | ⭐⭐ | 30min |
 | 12 | [安全机制](./12-security.md) | ⭐⭐⭐ | 30min |
+| 13 | [官方插件详解](./13-official-plugins.md) | ⭐⭐⭐⭐ | 60min |
+| 14 | [大模型选择与配置指南](./14-model-selection.md) | ⭐⭐⭐ | 30min |
 
 ---
 
-## 🎯 官方插件详解（新增）
+## 🚀 辅助文档
 
 深入了解Claude Code的所有13个官方插件：
 
@@ -103,11 +107,11 @@ graph LR
 ## 🌟 教程亮点
 
 ### 📝 内容丰富
-- **总字数**：约180,000字
+- **总字数**：约200,000+字
 - **代码示例**：300+个
-- **流程图**：20+个
+- **流程图**：25+个
 - **实战案例**：12个
-- **对比表格**：60+个
+- **对比表格**：70+个
 
 ### 🎨 可视化图表
 - 🔄 **插件生命周期状态图**
@@ -167,10 +171,11 @@ graph TD
     B --> C[模块05-08]
     C --> D[第2天：进阶提升]
     D --> E[模块09-12]
-    E --> F[模块13]
-    F --> G[第3天：实战巩固]
-    G --> H[实战项目]
-    H --> I[✅ 掌握Claude Code]
+    E --> F[模块13：官方插件]
+    F --> G[模块14：模型选择]
+    G --> H[第3天：实战巩固]
+    H --> I[实战项目]
+    I --> J[✅ 掌握Claude Code]
 ```
 
 详细学习计划见：[🎯 学习路径指南](./LEARNING_PATH.md)
@@ -235,14 +240,15 @@ irm https://claude.ai/install.ps1 | iex
 ## 📊 项目统计
 
 ```
-总字数：180,000+
-总行数：12,000+
-文件数：19
-模块数：13（12核心 + 1插件）
+总字数：200,000+
+总行数：14,000+
+文件数：22
+模块数：14（12核心 + 1插件 + 1模型选择）
 代码示例：300+
-流程图：20+
+流程图：25+
 实战案例：12+
-对比表格：60+
+对比表格：70+
+官方插件：13个（100%覆盖）
 ```
 
 ---
