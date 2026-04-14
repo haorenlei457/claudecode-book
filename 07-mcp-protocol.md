@@ -2,43 +2,99 @@
 
 ## 📋 模块介绍
 
-MCP（Model Context Protocol）是 Claude Code 连接外部工具和服务的标准协议。本章将讲解MCP的配置和使用。
+MCP（Model Context Protocol）是 Claude Code 连接外部工具和服务的标准协议。本章将讲解MCP的概念、配置方法和实际应用。
 
 ---
 
 ## 🟢 入门级：MCP基础认知
 
-### 什么是MCP？
+### 🤔 什么是MCP？
 
-MCP是**模型上下文协议**，让 Claude Code 能够访问外部工具和服务。
+#### 简单理解
+
+**MCP（Model Context Protocol）就像是 Claude Code 的"通用接口标准"**，让Claude Code能够与外部工具和服务对话。
 
 **类比理解**：
-- 🔌 像USB接口，连接外部设备
-- 🌐 像API网关，访问外部服务
-- 📦 像插件系统，扩展功能
 
-### MCP能做什么？
+```
+传统方式：
+Claude Code 内置能力 → 可用的工具（文件、Git、终端）
 
-```markdown
-✅ 访问GitHub - 查看PR、Issue
-✅ 查询数据库 - 执行SQL查询
-✅ 操作文件系统 - 读写文件
-✅ 调用HTTP API - 访问外部服务
-✅ 执行系统命令 - 运行CLI工具
+使用MCP后：
+Claude Code → MCP协议 → 任何外部工具或服务
 ```
 
-### 官方MCP服务器
+**核心价值**：
+- 🌐 可扩展：支持无限扩展
+- 🔌 标准化：统一的使用方式
+- 🔧 灵活性：自动发现和配置
+- 📊 可组合：多个MCP服务器协同工作
+
+---
+
+### 🌐 MCP能做什么？
+
+```markdown
+---
+name: "MCP能力展示"
+---
+
+## 1. 工具访问
+- 访问文件系统
+- 查询数据库
+- 执行命令行
+
+## 2. 数据交换
+- 读取文件
+- 写入文件
+- 读取API响应
+
+## 3. 实时监控
+- 监听文件变化
+- 实时数据查询
+```
+
+---
+
+### 🎯 官方MCP服务器
 
 | 服务器 | 功能 | 用途 |
 |--------|------|------|
 | **github** | GitHub集成 | PR管理、Issue跟踪 |
-| **filesystem** | 文件操作 | 高级文件管理 |
-| **database** | 数据库查询 | SQL查询执行 |
-| **brave-search** | 网络搜索 | 搜索信息 |
+| **filesystem** | 文件系统 | 文件管理 |
+| **database** | 数据库 | 数据查询 |
+| **brave-search** | 搜索引擎 | 信息检索 |
 
 ---
 
-## 🟡 中级：MCP配置与使用
+### 实际应用
+
+#### 1. GitHub 集成
+
+```bash
+# 安装 GitHub MCP
+claude> /mcp add github -- npx -y @modelcontextprotocol/server-github
+
+# 使用GitHub功能
+claude> 查看最近的PR
+claude> 创建新的PR
+claude> 查看Issue #123
+```
+
+#### 2. 数据库查询
+
+```bash
+# 连接数据库
+claude> /mcp add database -- npx -y @modelcontextprotocol/server-postgres \
+    postgresql://user:pass@localhost/mydb
+
+# 查询数据
+claude> 查询最近的100个用户
+```
+
+---
+
+## 🟡 中级：MCP配置与集成
 
 ### MCP配置格式
 
@@ -49,84 +105,21 @@ MCP是**模型上下文协议**，让 Claude Code 能够访问外部工具和服
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],
       "env": {
-        "GITHUB_TOKEN": "your_token_here"
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
       }
-    },
-    "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed"]
     },
     "database": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://..."]
-    }
-  }
-}
-```
-
-### 安装MCP服务器
-
-#### 方法1：使用Claude Code命令
-
-```bash
-$ claude
-claude> /mcp add github -- npx -y @modelcontextprotocol/server-github
-✅ GitHub MCP服务器已添加
-```
-
-#### 方法2：手动配置
-
-1. 创建 `~/.claude/settings.json`
-
-2. 添加MCP服务器配置
-
-```json
-{
-  "mcpServers": {
-    "github": {
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "args": ["-y", "postgres://user:pass@localhost:5432/mydb"]
+    },
+    "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
-      }
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed"],
+      "env": {}
     }
   }
 }
-```
-
-3. 设置环境变量
-
-```bash
-export GITHUB_TOKEN="your_token_here"
-```
-
-### 使用MCP功能
-
-#### GitHub集成
-
-```bash
-$ claude
-claude> 查看最近的PR
-
-📋 使用GitHub MCP...
-
-最近的PR：
-1. #123 - 添加新功能
-2. #122 - 修复bug
-3. #121 - 性能优化
-```
-
-#### 数据库查询
-
-```bash
-claude> 查询最近的100个订单
-
-📊 使用数据库MCP...
-
-查询结果：
-- 订单总数：100
-- 总金额：$50,000
-- 平均金额：$500
 ```
 
 ---
@@ -138,50 +131,23 @@ claude> 查询最近的100个订单
 ```typescript
 class MCPClient {
   private servers: Map<string, MCPServer>;
-
+  
   async connect(serverName: string): Promise<void> {
     const config = this.getServerConfig(serverName);
     const server = await this.launchServer(config);
-
     this.servers.set(serverName, server);
-
+    
     // 初始化握手
     await this.handshake(server);
   }
-
-  private async launchServer(
-    config: MCPServerConfig
-  ): Promise<MCPServer> {
-    // 启动服务器进程
-    const process = spawn(config.command, config.args, {
-      env: {
-        ...process.env,
-        ...config.env
-      }
-    });
-
-    // 创建通信通道
-    const transport = new StdioTransport(process.stdin, process.stdout);
-
-    return {
-      name: config.name,
-      process,
-      transport,
-      capabilities: {}
-    };
-  }
-
+  
   async callTool(
     serverName: string,
     toolName: string,
     args: any
   ): Promise<any> {
     const server = this.servers.get(serverName);
-
-    if (!server) {
-      throw new Error('Server not connected: ' + serverName);
-    }
-
+    
     // 发送工具调用请求
     const response = await server.transport.send({
       jsonrpc: '2.0',
@@ -192,74 +158,48 @@ class MCPClient {
         arguments: args
       }
     });
-
+    
     return response.result;
   }
-}
-```
-
-### MCP工具注册
-
-```typescript
-class MCPToolRegistry {
-  private tools: Map<string, MCPTool>;
-
-  register(server: string, tools: MCPTool[]): void {
-    for (const tool of tools) {
-      const key = `${server}:${tool.name}`;
-      this.tools.set(key, {
-        ...tool,
-        server
-      });
-    }
-  }
-
-  find(toolName: string): MCPTool | null {
-    // 精确匹配
-    if (this.tools.has(toolName)) {
-      return this.tools.get(toolName)!;
-    }
-
-    // 模糊匹配
-    for (const [key, tool] of this.tools.entries()) {
-      if (key.endsWith(toolName)) {
-        return tool;
-      }
-    }
-
-    return null;
+  
+  async listTools(
+    serverName: string
+  ): Promise<Tool[]> {
+    const server = this.servers.get(serverName);
+    
+    // 列出工具
+    const response = await server.transport.send({
+      jsonrpc: '2.0',
+      id: generateId(),
+      method: 'tools/list',
+      params: {}
+    });
+    
+    return response.result.tools || [];
   }
 }
 ```
 
 ---
 
-## 📚 实战案例：集成自定义MCP服务
+## 📚 实战案例：自定义MCP服务器
 
 ### 需求
-- 🔗 连接到内部API服务
-- 📊 获取业务数据
-- 🎯 自动化业务流程
+创建一个业务数据查询的MCP服务器。
 
 ### 实现
 
-#### 1. 创建MCP服务器
+#### 1. 创建服务器
 
 ```javascript
 // my-mcp-server/index.js
 const { Server } = require('@modelcontextprotocol/sdk/server');
-const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio');
 
 const server = new Server({
   name: 'my-business-api',
   version: '1.0.0'
-}, {
-  capabilities: {
-    tools: {}
-  }
 });
 
-// 注册工具
 server.setRequestHandler('tools/list', async () => ({
   tools: [
     {
@@ -279,7 +219,7 @@ server.setRequestHandler('tools/list', async () => ({
         type: 'object',
         properties: {
           customer_id: { type: 'string' },
-          items: { type: 'array' }
+          items: { type: 'array', items: { type: 'object' } }
         }
       }
     }
@@ -288,24 +228,27 @@ server.setRequestHandler('tools/list', async () => ({
 
 // 处理工具调用
 server.setRequestHandler('tools/call', async (request) => {
-  const { name, arguments: args } = request.params;
-
+  const { name, arguments } = request.params;
+  
   switch (name) {
     case 'get_orders':
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify(await getOrders(args.limit))
+          text: JSON.stringify(await getOrders(arguments.limit))
         }]
       };
-
+      
     case 'create_order':
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify(await createOrder(args))
+          text: JSON.stringify(await createOrder(arguments))
         }]
       };
+      
+    default:
+      throw new Error(`Unknown tool: ${name}`);
   }
 });
 
@@ -333,17 +276,12 @@ main();
 #### 3. 使用
 
 ```bash
-$ claude
 claude> 查询最近的10个订单
 
-📊 使用business-api MCP...
-
-查询结果：
-[
-  {"id": "001", "amount": 100},
-  {"id": "002", "amount": 200},
-  ...
-]
+# Claude会自动：
+# 1. 找动服务器
+# 2. 调用get_orders工具
+# 3. 显示结果
 ```
 
 ---
@@ -351,19 +289,26 @@ claude> 查询最近的10个订单
 ## ✅ 章节总结
 
 ### 入门级要点
-- ✅ 理解MCP的概念
+- ✅ 理解MCP的概念和价值
 - ✅ 掌握基本使用方法
-- ✅ 了解官方MCP服务器
+- 了解官方MCP服务器
 
 ### 中级要点
 - ✅ 掌握MCP配置格式
-- ✅ 理解服务器安装
-- ✅ 学会使用MCP功能
+- 学会安装和配置MCP服务器
+- 学会使用MCP功能
 
 ### 专家级要点
 - ✅ 深入MCP客户端实现
-- ✅ 掌握工具注册
-- ✅ 理解自定义服务器开发
+- 掌握工具注册机制
+- 理解自定义服务器开发
+- 掌握安全机制
+
+### 📊 相关图表
+
+- **MCP客户端架构图**：展示客户端、服务器、传输的连接机制
+- **工具调用流程**：展示工具调用的完整流程
+- **自定义服务器架构图**：展示自定义服务器的实现
 
 ---
 

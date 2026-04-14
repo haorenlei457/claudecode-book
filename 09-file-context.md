@@ -2,620 +2,312 @@
 
 ## 📋 模块介绍
 
-文件操作和上下文管理是 Claude Code 理解项目的基础能力。通过智能的文件扫描和上下文构建，Claude Code 能够"读懂"整个项目，提供精准的代码建议。本章将深入讲解文件系统和上下文管理。
+文件操作和上下文管理是 Claude Code 理解项目的基础能力。本章将深入讲解文件扫描、上下文构建以及高级操作技术。
 
 ---
 
 ## 🟢 入门级：文件操作基础
 
-### 基本文件操作
+### 🤔 文件操作类型
 
-Claude Code 提供多种文件操作方式：
+#### 基础操作
 
 ```bash
-# 读取文件内容
-claude> 读取 package.json 的内容
-claude> 查看 src/main.py
+# 读取文件
+claude> 读取 package.json
 
 # 写入文件
-claude> 创建一个新文件 config.json，内容是 {...}
-claude> 在 src/utils.js 中添加一个函数
+claude> 创建 README.md "项目介绍"
+claude> 写入 src/index.ts "export function"
 
 # 编辑文件
-claude> 修改 README.md，添加安装说明
-claude> 在 index.html 的 head 中添加 meta 标签
+claude> 在 index.ts 中添加导出函数
 
 # 删除文件
-claude> 删除临时文件 temp.txt
-claude> 移除旧的配置文件
-
-# 搜索文件
-claude> 搜索包含 "TODO" 的所有文件
-claude> 查找所有测试文件
+claude> 删除 temp.py
 ```
 
-### 支持的文件类型
-
-| 类型 | 扩展名 | 特殊处理 |
-|------|--------|----------|
-| 代码文件 | .js, .ts, .py, .go, .rs | 语法分析 |
-| 配置文件 | .json, .yaml, .toml | 结构验证 |
-| 文档 | .md, .txt, .rst | 全文检索 |
-| 数据文件 | .csv, .xml | 格式解析 |
-| 二进制 | .png, .jpg, .pdf | 元数据提取 |
-
-### 文件操作安全
+#### 高级操作
 
 ```bash
-# Claude Code 会自动保护重要文件
-⚠️  尝试写入 /etc/hosts
-❌ 操作被拒绝：系统文件受保护
+# 搜索文件
+claude> 搜索 TODO 标记
 
-# 路径遍历防护
-⚠️  路径包含 .. 
-❌ 操作被拒绝：潜在的安全风险
+# 批量处理
+claude| 批量重命名
+claude| 批量修改权限
+
+# 文件遍历
+claude| 遍历所有 .ts 文件
 ```
 
 ---
 
-## 🟡 中级：上下文管理
+### 🧠 上下文系统
 
-### 什么是上下文？
-
-上下文（Context）是 Claude Code 对项目的**整体理解**，包括：
-
-```
-项目上下文
-├── 文件结构
-│   ├── 目录树
-│   ├── 文件列表
-│   └── 文件关系
-├── 代码理解
-│   ├── 模块依赖
-│   ├── 函数调用
-│   └── 类型信息
-├── 项目配置
-│   ├── 技术栈
-│   ├── 编码规范
-│   └── 工作流
-└── 历史记录
-    ├── 之前的对话
-    ├── 修改记录
-    └── 用户偏好
-```
-
-### CLAUDE.md 上下文系统
-
-#### 1. 上下文层级
-
-```
-~/.claude/CLAUDE.md                    # 个人偏好
-    ↓
-./CLAUDE.md                           # 项目根配置
-    ↓
-./src/CLAUDE.md                       # 源代码规则
-    ↓
-./src/api/CLAUDE.md                   # API层规则
-    ↓
-./src/api/routes/CLAUDE.md            # 路由规则
-```
-
-**加载顺序**：从根到当前目录，逐步合并
-
-#### 2. 上下文内容示例
-
-**项目根 CLAUDE.md**：
+#### CLAUDE.md 配置
 
 ```markdown
-# MyProject
+# 项目根 CLAUDE.md
 
-## 项目概述
-这是一个现代化的Web应用
+## 项目名称：我的项目
 
 ## 技术栈
 - Frontend: React + TypeScript
 - Backend: Node.js + Express
 - Database: PostgreSQL
-- ORM: Prisma
 
 ## 编码规范
-- ESLint + Prettier
-- Conventional Commits
-- 测试覆盖率 > 80%
+- 使用TypeScript
+- 组件使用PascalCase
+- 接口使用interface
+- 使用ES6 modules
+- 所有函数必须有返回类型
 
 ## Git 工作流
-- main: 生产分支
-- develop: 开发分支
-- feature/*: 功能分支
+- 主分支: main
+- 特性分支: feature/*
+- PR 流程
+- Merge Request审查
+
+## 测试要求
+- 单元测试覆盖率 > 80%
+- 集成测试
+- E2E测试
 ```
 
-**API层 CLAUDE.md**（src/api/CLAUDE.md）：
+#### 子项目配置
 
 ```markdown
-# API 层配置
+# backend/CLAUDE.md
 
-## 技术栈
-- Express.js
-- Zod (输入验证)
-- Prisma (数据库)
-
-## 目录结构
-```
-api/
-├── controllers/    # 控制器
-├── services/       # 业务逻辑
-├── middleware/     # 中间件
-├── routes/         # 路由定义
-└── types/          # 类型定义
-```
+## 后端技术栈
+- FastAPI 0.100+
+- SQLAlchemy 2.0+
+- Alembic
+- Pydantic
 
 ## 编码规范
-- 控制器只处理HTTP相关逻辑
-- 业务逻辑放在 services
+- 异步编程
+- 类型注解
+- 错误处理
+- 输入验证
+
+## API 设计
+- RESTful 风格
 - 统一错误处理
-- 所有输入必须经过验证
+- 接口文档
+- 统一返回格式
+```
 
-## API 设计原则
-1. RESTful 设计
-2. 使用资源复数形式
-3. HTTP 状态码规范
-4. 统一响应格式
+---
 
-## 错误处理
+### 上下文加载优先级
+
+```mermaid
+graph TD
+    A[当前目录 CLAUDE.md] -->|优先级1| B[最终上下文]
+    C[父目录 CLAUDE.md] -->|优先级2| B
+    D[全局配置 CLAUDE.md] -->|优先级3| B
+    E[默认配置] -->|优先级4| B
+    F[插件默认配置] -->|优先级5| B
+    
+    style A fill:#e1f5e3
+    style B fill:#FFE5E3
+    style C fill:#FFD43D
+    style D fill:#FFD43D
+    style E fill:#FFD43D
+    style F fill:#FF0F0
+```
+
+**配置叠加规则**：
+- 子目录覆盖父目录
+- 父目录覆盖全局配置
+- 全局配置覆盖默认配置
+
+---
+
+## 🔴 专家级：上下文构建算法
+
+### 📁 文件扫描算法
+
 ```typescript
-{
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Invalid input",
-    "details": [...]
+async function scanFiles(
+  dir: string,
+  ignorePatterns: string[]
+): Promise<FileInfo[]> {
+  const files: FileInfo[] = [];
+  
+  async function traverse(currentDir: string) {
+    const entries = await fs.readdir(currentDir, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      const fullPath = path.join(currentDir, entry.name);
+      const stats = await fs.stat(fullPath);
+      
+      if (stats.isDirectory()) {
+        // 递归扫描
+        await traverse(fullPath);
+      } else if (stats.isFile()) {
+        // 文件处理
+        const content = await fs.readFile(fullPath, 'utf-8');
+        const hash = computeHash(content);
+        
+        // 限制内容大小
+        const limitedContent = content.slice(0, 10000);
+        
+        files.push({
+          path: fullPath,
+          size: stats.size,
+          modified: stats.mtime,
+          content: limitedContent,
+          hash: hash
+        });
+      }
+    }
   }
+  
+  return files;
+}
+
+function computeHash(content: string): string {
+  const hash = crypto.createHash('sha256');
+  hash.update(content);
+  return hash.digest('hex');
 }
 ```
-```
 
-### 上下文自动构建
-
-Claude Code 如何构建上下文：
+### 🧠 上下文构建器
 
 ```typescript
-interface ContextBuilder {
-  build(cwd: string): Promise<ProjectContext>;
-}
-
-class DefaultContextBuilder implements ContextBuilder {
-  async build(cwd: string): Promise<ProjectContext> {
-    const context: ProjectContext = {
+class ContextBuilder {
+  async build(cwd: string): Promise<Context> {
+    const context: Context = {
       files: [],
       structure: {},
       memory: {},
       metadata: {},
-      dependencies: {},
-      types: {}
+      dependencies: {}
     };
-
-    // 1. 扫描文件系统
+    
+    // 1. 扫描文件
     context.files = await this.scanFiles(cwd);
-
+    
     // 2. 构建目录结构
     context.structure = this.buildTree(context.files);
-
+    
     // 3. 加载记忆文件
     context.memory = await this.loadMemory(cwd);
-
+    
     // 4. 分析项目类型
-    context.metadata.projectType = this.detectProjectType(context);
-
+    context.metadata.type = this.detectProjectType(context.files);
+    
     // 5. 解析依赖关系
-    context.dependencies = await this.analyzeDependencies(context);
-
+    context.metadata.dependencies = await this.analyzeDependencies(context.files);
+    
     // 6. 提取类型信息
-    context.types = await this.extractTypes(context);
-
+    context.metadata.types = await this.extractTypes(context.files);
+    
     return context;
   }
-
-  private async scanFiles(dir: string): Promise<FileInfo[]> {
-    const files: FileInfo[] = [];
-    const ignorePatterns = [
-      '.git',
-      'node_modules',
-      'dist',
-      'build',
-      '.env',
-      '*.log'
-    ];
-
-    const entries = await fs.readdir(dir, { withFileTypes: true });
-
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name);
-
-      // 检查忽略模式
-      if (this.shouldIgnore(entry.name, ignorePatterns)) {
-        continue;
-      }
-
-      if (entry.isDirectory()) {
-        // 递归扫描子目录
-        const subFiles = await this.scanFiles(fullPath);
-        files.push(...subFiles);
-      } else {
-        // 获取文件信息
-        const stats = await fs.stat(fullPath);
-        const content = await this.readFile(fullPath);
-
-        files.push({
-          path: fullPath,
-          relativePath: path.relative(dir, fullPath),
-          size: stats.size,
-          modified: stats.mtime,
-          extension: path.extname(entry.name),
-          content: content.slice(0, 10000), // 限制内容大小
-          hash: this.computeHash(content)
-        });
-      }
-    }
-
-    return files;
-  }
-
-  private async loadMemory(dir: string): Promise<MemoryFiles> {
-    const memory: MemoryFiles = {};
-
-    // 从当前目录向上查找 CLAUDE.md
-    let currentDir = dir;
-    while (currentDir !== path.dirname(currentDir)) {
-      const memoryPath = path.join(currentDir, 'CLAUDE.md');
-
-      if (await fs.pathExists(memoryPath)) {
-        const content = await fs.readFile(memoryPath, 'utf-8');
-        memory[currentDir] = content;
-      }
-
-      currentDir = path.dirname(currentDir);
-    }
-
-    return memory;
-  }
-
-  private detectProjectType(context: ProjectContext): string {
-    const files = context.files.map(f => f.path);
-
-    // 检查 package.json
-    if (files.some(f => f.includes('package.json'))) {
-      const packageJson = files.find(f => f.includes('package.json'));
-      const content = JSON.parse(packageJson?.content || '{}');
-
-      if (content.dependencies?.react) return 'react';
-      if (content.dependencies?.vue) return 'vue';
-      if (content.dependencies?.express) return 'express';
-      return 'node';
-    }
-
-    // 检查 Python
-    if (files.some(f => f.endsWith('requirements.txt'))) {
-      return 'python';
-    }
-    if (files.some(f => f.endsWith('pyproject.toml'))) {
-      return 'python';
-    }
-
-    // 检查 Go
-    if (files.some(f => f.endsWith('go.mod'))) {
-      return 'go';
-    }
-
-    // 检查 Rust
-    if (files.some(f => f.endsWith('Cargo.toml'))) {
-      return 'rust';
-    }
-
-    return 'unknown';
-  }
 }
 ```
 
 ---
 
-## 🔴 专家级：上下文管理深度剖析
-
-### 智能文件过滤
-
-```typescript
-class SmartFileFilter {
-  private relevanceScores: Map<string, number> = new Map();
-
-  async filter(
-    files: FileInfo[],
-    query: string,
-    limit: number = 50
-  ): Promise<FileInfo[]> {
-    // 1. 计算每个文件的相关性
-    for (const file of files) {
-      const score = await this.calculateRelevance(file, query);
-      this.relevanceScores.set(file.path, score);
-    }
-
-    // 2. 排序并返回前N个
-    const sorted = files.sort((a, b) => {
-      const scoreA = this.relevanceScores.get(a.path) || 0;
-      const scoreB = this.relevanceScores.get(b.path) || 0;
-      return scoreB - scoreA;
-    });
-
-    return sorted.slice(0, limit);
-  }
-
-  private async calculateRelevance(
-    file: FileInfo,
-    query: string
-  ): Promise<number> {
-    let score = 0;
-
-    // 文件名匹配
-    if (file.path.toLowerCase().includes(query.toLowerCase())) {
-      score += 10;
-    }
-
-    // 内容匹配
-    const contentMatches = (file.content.match(new RegExp(query, 'gi')) || []).length;
-    score += contentMatches * 2;
-
-    // 文件类型权重
-    const typeWeights: Record<string, number> = {
-      '.ts': 1.5,
-      '.tsx': 1.5,
-      '.js': 1.2,
-      '.json': 1.0,
-      '.md': 0.8
-    };
-    score *= typeWeights[file.extension] || 1;
-
-    // 最近修改的文件加分
-    const daysSinceModified = (Date.now() - file.modified.getTime()) / (1000 * 60 * 60 * 24);
-    if (daysSinceModified < 7) {
-      score *= 1.5;
-    }
-
-    return score;
-  }
-}
-```
-
-### 增量上下文更新
-
-```typescript
-class IncrementalContextUpdater {
-  private context: ProjectContext;
-  private fileHashes: Map<string, string> = new Map();
-
-  async update(changedFiles: string[]): Promise<ProjectContext> {
-    for (const filePath of changedFiles) {
-      const newHash = await this.computeFileHash(filePath);
-      const oldHash = this.fileHashes.get(filePath);
-
-      if (oldHash !== newHash) {
-        // 文件已修改，更新上下文
-        await this.updateFileInContext(filePath);
-        this.fileHashes.set(filePath, newHash);
-      }
-    }
-
-    // 移除已删除的文件
-    for (const [path, hash] of this.fileHashes.entries()) {
-      if (!await fs.pathExists(path)) {
-        this.removeFileFromContext(path);
-        this.fileHashes.delete(path);
-      }
-    }
-
-    return this.context;
-  }
-
-  private async updateFileInContext(filePath: string): Promise<void> {
-    const content = await fs.readFile(filePath, 'utf-8');
-    const stats = await fs.stat(filePath);
-
-    const fileInfo: FileInfo = {
-      path: filePath,
-      content,
-      size: stats.size,
-      modified: stats.mtime,
-      hash: this.computeHash(content)
-    };
-
-    // 更新或添加文件
-    const existingIndex = this.context.files.findIndex(
-      f => f.path === filePath
-    );
-
-    if (existingIndex >= 0) {
-      this.context.files[existingIndex] = fileInfo;
-    } else {
-      this.context.files.push(fileInfo);
-    }
-
-    // 更新依赖关系
-    await this.updateDependencies(fileInfo);
-  }
-}
-```
-
-### 代码语义分析
-
-```typescript
-class CodeAnalyzer {
-  async analyze(file: FileInfo): Promise<CodeAnalysis> {
-    const analysis: CodeAnalysis = {
-      imports: [],
-      exports: [],
-      functions: [],
-      classes: [],
-      types: [],
-      dependencies: []
-    };
-
-    switch (file.extension) {
-      case '.ts':
-      case '.tsx':
-      case '.js':
-        return this.analyzeJavaScript(file);
-      case '.py':
-        return this.analyzePython(file);
-      case '.go':
-        return this.analyzeGo(file);
-      default:
-        return analysis;
-    }
-  }
-
-  private analyzeJavaScript(file: FileInfo): CodeAnalysis {
-    const analysis: CodeAnalysis = {
-      imports: [],
-      exports: [],
-      functions: [],
-      classes: [],
-      types: [],
-      dependencies: []
-    };
-
-    // 解析 import 语句
-    const importRegex = /import\s+(?:(\{[^}]+\})|(\*\s+as\s+\w+)|(\w+))\s+from\s+['"]([^'"]+)['"];?/g;
-    let match;
-    while ((match = importRegex.exec(file.content)) !== null) {
-      analysis.imports.push({
-        source: match[4],
-        names: match[1] || match[2] || match[3]
-      });
-    }
-
-    // 解析 export 语句
-    const exportRegex = /export\s+(?:default\s+)?(?:const|let|var|function|class|interface)?\s*(\w+)/g;
-    while ((match = exportRegex.exec(file.content)) !== null) {
-      analysis.exports.push(match[1]);
-    }
-
-    // 解析函数
-    const functionRegex = /(?:async\s+)?function\s+(\w+)|(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?\([^)]*\)\s*=>/g;
-    while ((match = functionRegex.exec(file.content)) !== null) {
-      analysis.functions.push(match[1] || match[2]);
-    }
-
-    // 解析类
-    const classRegex = /class\s+(\w+)(?:\s+extends\s+(\w+))?/g;
-    while ((match = classRegex.exec(file.content)) !== null) {
-      analysis.classes.push({
-        name: match[1],
-        extends: match[2]
-      });
-    }
-
-    return analysis;
-  }
-}
-```
-
----
-
-## 📚 实战案例：智能代码搜索工具
+## 📚 实战案例：智能代码分析工具
 
 ### 需求
-- 🔍 语义化代码搜索
-- 📊 智能文件推荐
-- 🔗 依赖关系分析
-- 📈 代码复杂度评估
+创建一个代码分析工具，支持批量分析、依赖分析和优化建议。
 
 ### 实现
 
-```typescript
-class SmartCodeSearch {
-  private context: ProjectContext;
+#### 1. 分析器代理
 
-  async search(query: string): Promise<SearchResult[]> {
-    // 1. 解析查询意图
-    const intent = this.parseIntent(query);
+```markdown
+---
+id: "code-analyzer"
+name: "代码分析专家"
+role: "Code Analysis"
+description: "分析代码结构、依赖关系和性能"
+permissions:
+  - "file:read"
+  - "git:read"
+---
+你是代码分析专家。请按照以下步骤分析代码：
 
-    // 2. 根据意图选择搜索策略
-    switch (intent.type) {
-      case 'function':
-        return this.searchByFunction(intent.value);
-      case 'class':
-        return this.searchByClass(intent.value);
-      case 'pattern':
-        return this.searchByPattern(intent.value);
-      default:
-        return this.semanticSearch(query);
-    }
-  }
+## 分析流程
 
-  private parseIntent(query: string): QueryIntent {
-    // 函数搜索
-    const funcMatch = query.match(/(?:find|search for)?\s*(?:function|method)\s+(\w+)/i);
-    if (funcMatch) {
-      return { type: 'function', value: funcMatch[1] };
-    }
+1. **依赖分析**
+   - 读取 package.json
+   - 解析依赖关系
+   - 检查循环依赖
+   - 检查版本冲突
 
-    // 类搜索
-    const classMatch = query.match(/(?:find|search for)?\s*class\s+(\w+)/i);
-    if (classMatch) {
-      return { type: 'class', value: classMatch[1] };
-    }
+2. **架构分析**
+   - 检查代码结构
+   - 识别分层架构
+   - 分析模块依赖
 
-    // 模式搜索
-    const patternMatch = query.match(/(?:find|search for)?\s*pattern\s+(.+)/i);
-    if (patternMatch) {
-      return { type: 'pattern', value: patternMatch[1] };
-    }
+3. **性能分析**
+   - 识别性能瓶颈
+   - 识别慢查询
+   - 优化建议
 
-    return { type: 'semantic', value: query };
-  }
+## 输出格式
+```markdown
+## 代码分析报告
 
-  private semanticSearch(query: string): SearchResult[] {
-    const results: SearchResult[] = [];
+### 依赖关系
+- 直接依赖：{{direct_deps}}
+- 传递依赖：{{transitive_deps}}
+- 循环依赖：{{circular_deps}}
 
-    for (const file of this.context.files) {
-      // 计算语义相似度
-      const similarity = this.calculateSimilarity(
-        query,
-        file.content
-      );
+### 架构分析
+```mermaid
+graph TD
+    A[入口文件] --> B[依赖A]
+    C[依赖B]
+    D[依赖C]
+    E[依赖B]
+    F[依赖C]
+    E --> G[循环依赖C]
+    F --> H[依赖A]
+```
 
-      if (similarity > 0.3) {
-        results.push({
-          file: file.path,
-          relevance: similarity,
-          snippets: this.extractRelevantSnippets(query, file.content)
-        });
-      }
-    }
+### 性能瓶颈
+- {{bottleneck1}}
+- {{bottleneck2}}
+- {{bottleneck3}}
 
-    return results.sort((a, b) => b.relevance - a.relevance);
-  }
+### 优化建议
+- 1. 识别循环依赖
+- 2. 优化慢查询
+- 3. 添加缓存
+```
+```
 
-  private calculateSimilarity(query: string, content: string): number {
-    // 使用简单的 TF-IDF 计算相似度
-    const queryTerms = this.tokenize(query);
-    const contentTerms = this.tokenize(content);
+#### 2. 创建技能
 
-    const querySet = new Set(queryTerms);
-    const contentSet = new Set(contentTerms);
+```markdown
+---
+name: "code-analyzer"
+description: "分析代码结构和依赖"
+triggers:
+  - "分析依赖"
+  - "检查架构"
+  - "性能分析"
+  - "循环依赖"
+---
 
-    const intersection = new Set(
-      [...querySet].filter(x => contentSet.has(x))
-    );
+# 代码分析技能
 
-    return intersection.size / querySet.size;
-  }
-
-  private tokenize(text: string): string[] {
-    return text
-      .toLowerCase()
-      .replace(/[^\w\s]/g, ' ')
-      .split(/\s+/)
-      .filter(word => word.length > 2);
-  }
-}
+## 功能
+- 分析代码结构
+- 分析依赖关系
+- 识别循环依赖
+- 优化性能建议
+```
 ```
 
 ---
@@ -623,21 +315,25 @@ class SmartCodeSearch {
 ## ✅ 章节总结
 
 ### 入门级要点
-- ✅ 掌握基本文件操作
-- ✅ 理解支持的文件类型
-- ✅ 了解文件操作安全
+- ✅ 理解文件操作方法
+- 掌握上下文优先级
+- 学会CLAUDE.md配置
 
 ### 中级要点
-- ✅ 掌握上下文概念
-- ✅ 理解CLAUDE.md系统
-- ✅ 掌握上下文层级
-- ✅ 了解自动构建机制
+- ✅ 掌握文件扫描算法
+- 理解上下文构建机制
+- 学会依赖分析
 
 ### 专家级要点
-- ✅ 深入上下文构建算法
-- ✅ 掌握智能文件过滤
-- ✅ 理解增量更新机制
-- ✅ 掌握代码语义分析
+- ✅ 深入文件系统架构
+- 掌握智能扫描算法
+- 掌握性能优化策略
+
+### 📊 相关图表
+
+- **文件扫描算法图**：展示递归扫描的逻辑
+- **上下文构建流程图**：展示文件扫描→结构构建→记忆加载的流程
+- **依赖关系图**：展示代码依赖关系的结构
 
 ---
 
